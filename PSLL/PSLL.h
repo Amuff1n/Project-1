@@ -35,16 +35,106 @@ class PSLL : public LinkedList<E> {
 	size_t pool_length();
  	void clear() override;
 	
-	//bool contains(E element, void (*equals_function)(E)) override;	
+	bool contains(E element);	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
+	//type aliases
+	using size_t = std::size_t;
+	using value_type = E;
 	
 	private: 
 	Node<E> * head = 0;
 	Node<E> * tail = 0;
 	//pointer to the beginning of the pool list
 	Node<E> * head_free = 0;
+	
+	public:
+	//iterator stuff
+	template <typename DataT>
+	class PSLL_Iter {
+		public:
+		//type aliases required for C++ iterator compatibility
+		using size_t = std::size_t;
+		using value_type = DataT;
+		using reference = DataT&;
+		using pointer = DataT*;
+		using difference_type = std::ptrdiff_t;
+		using iterator_category = std::forward_iterator_tag;
+		
+		//type aliases for prettier(!) code
+		using self_type = PSLL_Iter;
+		using self_reference = PSLL_Iter&;
+		
+		private:
+		Node<E> * here;
+		
+		public:
+		//constructor
+		explicit PSLL_Iter(Node<E> * start = nullptr) : here(start) {}
+		
+		//operations
+		reference operator*() const {
+			return here->data;
+		}
+		pointer operator->() const {
+			return &(operator*());
+		}
+		
+		//copy and assignment
+		PSLL_Iter( const PSLL_Iter& src) : here (src.here) {}
+		self_reference operator = ( PSLL_Iter<DataT> const& src) {
+			if (this == &src) {
+				return (*this);
+			}
+			here = src.here;
+			return *this;
+		}
+		//preincrement
+		self_reference operator++() {
+			if (here) {
+				here = here->next;
+			}
+			return *this;
+		} 
+		//postincrement
+		self_type operator++(int) {
+			self_type tmp = *this;
+			++(*this);
+			return tmp;
+		} 
+		
+		bool operator == ( PSLL_Iter<DataT> const& rhs) const {
+			return (here == rhs.here);
+		}
+		bool operator != ( PSLL_Iter<DataT> const& rhs) const {
+			return (here != rhs.here);
+		}
+	}; //end of iter
+	
+	public: 
+	//iter type aliases after iter code
+	using iterator = PSLL_Iter<E>;
+	using const_iterator = PSLL_Iter<E const>;
+	
+	//methods to create iters
+	iterator begin() {
+		iterator i(head);
+		return i;
+	}
+	iterator end() { 
+		iterator i(tail->next);
+		return i;
+	}
+	
+	const_iterator begin() const {
+		const_iterator i(head);
+		return i;
+	}
+	const_iterator end() const {
+		const_iterator i(tail->next);
+		return i;
+	}
 };
 
 //---constructors and destructors
@@ -59,7 +149,15 @@ PSLL<E>::PSLL() {
 
 template <typename E>
 PSLL<E>::~PSLL() {
-	//deconstructor should just delete the free pool
+	//add all nodes to pool, delete pool
+	this->clear();
+	class Node<E> *temp,*prev;
+	temp = head_free;
+	while (temp != 0) {
+		prev = temp;
+		temp = temp->next;
+		delete prev;
+	}
 }
 
 //---new_node()
@@ -69,9 +167,10 @@ Node<E> * PSLL<E>::new_node(E element) {
 	//check if list is >= 100 nodes before creating a new one
 	//also check if pool > half list length
 	//if so, delete half the nodes
+	//'new' will throw exception if no memeory left
 	size_t list_length = this->length();
 	size_t pool_length = this->pool_length();
-	if (list_length >= 100 || pool_length > (list_length/2)) {
+	if (list_length >= 100 && pool_length > (list_length/2)) {
 		temp = head_free;
 		for (int i = 0; i < (list_length/2); i++) {
 			prev = temp;
@@ -80,7 +179,6 @@ Node<E> * PSLL<E>::new_node(E element) {
 		}
 	}
 	temp_Node = new Node<E>;
-	//catch error here if memory is not available when creating temp_Node
 	temp_Node->data = element;
 	temp_Node->next = 0;
 	return temp_Node;
@@ -97,6 +195,8 @@ void PSLL<E>::push_back(E element) {
 	else {
 		temp_Node = head_free;
 		head_free = head_free->next;
+		temp_Node->data = element;
+		temp_Node->next = 0;
 	}
 	if (tail == 0) {
 		head = temp_Node;
@@ -123,6 +223,8 @@ void PSLL<E>::push_front(E element) {
 	else {
 		temp_Node = head_free;
 		head_free = head_free->next;
+		temp_Node->data = element;
+		temp_Node->next = nullptr;
 	}
 	if (head == 0) {
 		head = temp_Node;
@@ -138,13 +240,17 @@ void PSLL<E>::push_front(E element) {
 }
 
 //---insert()
-//check if pos will be invalid
 template <typename E>
 void PSLL<E>::insert(E element, int pos) {
 	class Node<E> *temp,*prev, *insert_node;
 	temp = head;
 	if (head == 0) {
 		std::cout<<"List is empty!"<<std::endl;
+		return;
+	}
+	int size = this->length();
+	if (pos >= size || pos <= 0) {
+		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	else if (pos == 1) {
@@ -155,6 +261,8 @@ void PSLL<E>::insert(E element, int pos) {
 		else {
 			insert_node = head_free;
 			head_free = head_free->next;
+			insert_node->data = element;
+			insert_node->next = nullptr;
 		}
 		head = insert_node;
 		insert_node->next = temp;
@@ -171,6 +279,8 @@ void PSLL<E>::insert(E element, int pos) {
 		else {
 			insert_node = head_free;
 			head_free = head_free->next;
+			insert_node->data = element;
+			insert_node->next = nullptr;
 		}
 		insert_node->next = temp;
 		prev->next = insert_node;
@@ -184,6 +294,11 @@ void PSLL<E>::replace(E element, int pos) {
 	temp = head;
 	if (head == 0) {
 		std::cout<<"List is empty!"<<std::endl;
+		return;
+	}
+	int size = this->length();
+	if (pos >= size || pos <= 0) {
+		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	for (int i = 0; i < pos - 1; i++) {
@@ -201,6 +316,11 @@ E PSLL<E>::remove(int pos) {
 	temp = head;
 	if (head == 0) {
 		std::cout<<"List is empty!"<<std::endl;
+		return 0;
+	}
+	int size = this->length();
+	if (pos >= size || pos <= 0) {
+		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	for (int i = 1; i < pos; i++) {
@@ -277,7 +397,11 @@ E PSLL<E>::item_at(int pos) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
-	//handle invalid position
+	int size = this->length();
+	if (pos >= size || pos <= 0) {
+		std::cout<<"Invalid position"<<std::endl;
+		return 0;
+	}
 	for (int i = 1; i < pos; i++) {
 		temp = temp->next;
 	}
@@ -358,6 +482,7 @@ size_t PSLL<E>::pool_length() {
 	}
 	return length;
 }
+
 //---clear()
 template <typename E>
 void PSLL<E>::clear() {
@@ -379,13 +504,27 @@ void PSLL<E>::clear() {
 }
 
 //---contains()
-//figure out what equals_fuctions is supposed to be
-/*
+//TODO figure out what equals_fuctions is supposed to be, currently a hard coded function that tests ==
 template <typename E>
-bool PSLL<E>::contains(E element, void (*equals_function)(E)) {
-	
+bool PSLL<E>::contains(E element) {
+	if (head == 0) {
+		std::cout<<"List is empty!"<<std::endl;
+		return false;
+	}
+	else {
+		class Node<E> *temp;
+		temp = head;
+		while (temp != 0) {
+			if (temp->data == element) {
+				std::cout<<element<<" exists in list!"<<std::endl;
+				return true;
+			}
+			temp = temp->next;
+		}
+		std::cout<<element<<" is not in list!"<<std::endl;
+		return false;
+	}
 }
-*/
 
 //---print()
 template <typename E>

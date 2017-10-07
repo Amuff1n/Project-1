@@ -1,5 +1,6 @@
 //Simple Singly-Linked List
 //implements the Linked List using a simple list
+//for SSLL, I'm assuming positions start at 1, unlike arrays
 
 //maybe change all the ints to size_t later?
 
@@ -19,12 +20,12 @@ class SSLL : public LinkedList<E> {
 	Node<E> * new_node(E element) override;
 	void push_back(E element) override;
 	void push_front(E element) override;
-	void insert(E element, int pos);// override; //does not override? might be size_t == int 
-	void replace(E element, int pos);// override; //does not override?
-	E remove(int pos);// override; //does not override?
+	void insert(E element, int pos);// might be size_t == int 
+	void replace(E element, int pos);
+	E remove(int pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(int pos);// override; //does not override?
+	E item_at(int pos);
 	E peek_back() override;
 	E peek_front() override;
 	bool is_empty() override; 
@@ -32,7 +33,7 @@ class SSLL : public LinkedList<E> {
 	size_t length() override;
 	void clear() override;
 	
-	//bool contains(E element, void (*equals_function)(E)) override;	
+	bool contains(E element);	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
@@ -150,9 +151,9 @@ SSLL<E>::~SSLL() {
 //---new_node()
 template <typename E>
 Node<E> * SSLL<E>::new_node(E element) {
+	//'new' will throw exception if out of memory
 	class Node<E> *temp_Node;
 	temp_Node = new Node<E>;
-	//catch error here if memory is not available when creating temp_Node
 	temp_Node->data = element;
 	temp_Node->next = 0;
 	return temp_Node;
@@ -161,7 +162,6 @@ Node<E> * SSLL<E>::new_node(E element) {
 //---push_back()
 template <typename E>
 void SSLL<E>::push_back(E element) {
-	//check for errors
 	class Node<E> *temp_Node, *temp;
 	temp_Node = this->new_node(element);
 	if (tail == 0) {
@@ -181,7 +181,6 @@ void SSLL<E>::push_back(E element) {
 //---push_front()
 template <typename E>
 void SSLL<E>::push_front(E element) {
-	//check for errors
 	class Node<E> *temp_Node, *temp;
 	temp_Node = this->new_node(element);
 	if (head == 0) {
@@ -205,6 +204,11 @@ void SSLL<E>::insert(E element, int pos) {
 	temp = head;
 	if (head == 0) {
 		std::cout<<"List is empty!"<<std::endl;
+		return;
+	}
+	int size = this->length();
+	if (pos >= size || pos <= 0) {
+		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	else if (pos == 1) {
@@ -234,8 +238,12 @@ void SSLL<E>::replace(E element, int pos) {
 		std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
+	int size = this->length();
+	if (pos >= size || pos <= 0) {
+		std::cout<<"Invalid position"<<std::endl;
+		return;
+	}
 	for (int i = 0; i < pos - 1; i++) {
-		//catch an invalid position here later
 		temp = temp->next;
 	}
 	temp->data = element;
@@ -249,6 +257,11 @@ E SSLL<E>::remove(int pos) {
 	temp = head;
 	if (head == 0) {
 		std::cout<<"List is empty!"<<std::endl;
+		return 0;
+	}
+	int size = this->length();
+	if (pos >= size || pos <= 0) {
+		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	for (int i = 1; i < pos; i++) {
@@ -322,7 +335,11 @@ E SSLL<E>::item_at(int pos) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
-	//handle invalid position
+	int size = this->length();
+	if (pos >= size || pos <= 0) {
+		std::cout<<"Invalid position"<<std::endl;
+		return 0;
+	}
 	for (int i = 1; i < pos; i++) {
 		temp = temp->next;
 	}
@@ -410,13 +427,27 @@ void SSLL<E>::clear() {
 }
 
 //---contains()
-//figure out what equals_fuctions is supposed to be
-/*
+//TODO figure out what equals_fuctions is supposed to be, currently a hard coded function that tests ==
 template <typename E>
-bool SSLL<E>::contains(E element, void (*equals_function)(E)) {
-	
+bool SSLL<E>::contains(E element) {
+	if (head == 0) {
+		std::cout<<"List is empty!"<<std::endl;
+		return false;
+	}
+	else {
+		class Node<E> *temp;
+		temp = head;
+		while (temp != 0) {
+			if (temp->data == element) {
+				std::cout<<element<<" exists in list!"<<std::endl;
+				return true;
+			}
+			temp = temp->next;
+		}
+		std::cout<<element<<" is not in list!"<<std::endl;
+		return false;
+	}
 }
-*/
 
 //---print()
 template <typename E>
@@ -453,7 +484,7 @@ E* const SSLL<E>::contents() {
 		i++;
 	}
 	
-	//print array for testing purposes
+	//print new array for testing purposes
 	/*
 	for (i = 0; i < size; i++) {
 		std::cout<<array[i]<<" ";

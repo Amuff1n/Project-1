@@ -100,11 +100,11 @@ int main() {
             std::cout<<"Clearing the list: "<<std::endl;
 			ssll_1.clear();
             break;
-		case 15:
+		case 15: 
             std::cout<<"Input a value to check for: "<<std::endl;
 			std::cin>>input;
-			//ssll_1.contains(input);
-            break; 	
+			ssll_1.contains(input);
+            break; 
 		case 16:
             std::cout<<"Printing list: "<<std::endl;
 			ssll_1.print(stream);

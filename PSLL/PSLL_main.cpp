@@ -26,7 +26,8 @@ int main() {
 		std::cout<<"15. List contains input?"<<std::endl;
 		std::cout<<"16. Print list"<<std::endl;
 		std::cout<<"17. Return array of contents"<<std::endl;
-		std::cout<<"18. Exit"<<std::endl;
+		std::cout<<"18. Test Iterator (List must have 1+ elements!)"<<std::endl;
+		std::cout<<"19. Exit"<<std::endl;
         std::cout<<"Enter your choice : ";
         std::cin>>choice;
         switch(choice)
@@ -101,7 +102,7 @@ int main() {
 		case 15:
             std::cout<<"Input a value to check for: "<<std::endl;
 			std::cin>>input;
-			//psll_1.contains(input);
+			psll_1.contains(input);
             break; 	
 		case 16:
             std::cout<<"Printing list: "<<std::endl;
@@ -111,7 +112,18 @@ int main() {
             std::cout<<"Copying list to array and returning: "<<std::endl;
 			psll_1.contents();
             break; 
-		case 18:
+		case 18: {
+			std::cout<<"Testing Iterator by printing out contents of list: "<<std::endl;
+			PSLL<int>::iterator iter = psll_1.begin();
+			PSLL<int>::iterator end = psll_1.end();
+			std::cout<<"[ ";
+			for ( ; iter != end; ++iter) {
+				std::cout<<*iter<< ", ";
+			}
+			std::cout<<"]"<<std::endl; 
+			break;
+		}
+		case 19:
 			std::cout<<"Exiting"<<std::endl;
 			return 0;
         default:
