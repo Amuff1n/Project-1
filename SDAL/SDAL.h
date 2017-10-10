@@ -1,10 +1,11 @@
 //Simple Dynamic Array-based List
 //implements the Linked List using backing array
+//assuming user will not input a pos outside of list size
 
 //maybe change all the ints to size_t later?
 
-//ARRAY DOES NOT INIT TO RIGHT SIZE CURRENTLY
-//NEW ARRAY ALLOCATION NOT YET IMPLEMENTED
+//TODO ARRAY DOES NOT INIT TO RIGHT SIZE CURRENTLY
+//TODO NEW ARRAY ALLOCATION NOT YET IMPLEMENTED
 
 #ifndef _SDAL_H_
 #define _SDAL_H_
@@ -35,18 +36,111 @@ class SDAL : public LinkedList<E> {
 	size_t length() override;
 	void clear() override;
 	
-	//bool contains(E element, void (*equals_function)(E)) override;	
+	bool contains(E element);	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
+	//type aliases
+	using size_t = std::size_t;
+	using value_type = E;
 	
 	private: 
-	E *array;
-	size_t array_size = 0;
+	E * array;
+	
+	size_t array_size; //does NOT store size of list, rather the size of the ARRAY
 	//in this implementation, tail is an index
 	//head pointer will always be array[0]
 	size_t head = 0;
 	size_t tail = -1;
+	
+	public:
+	//iterator stuff
+	template <typename DataT>
+	class SDAL_Iter {
+		public:
+		//type aliases required for C++ iterator compatibility
+		using size_t = std::size_t;
+		using value_type = DataT;
+		using reference = DataT&;
+		using pointer = DataT*;
+		using difference_type = std::ptrdiff_t;
+		using iterator_category = std::forward_iterator_tag;
+		
+		//type aliases for prettier(!) code
+		using self_type = SDAL_Iter;
+		using self_reference = SDAL_Iter&;
+		
+		private:
+		//is the iterator going to have to have its own array?
+		DataT * iter_array;
+		
+		public:
+		//constructor
+		explicit SDAL_Iter(DataT * array = nullptr) : iter_array(array) {}
+		
+		//operations
+		reference operator*() const {
+			return *iter_array;
+		}
+		pointer operator->() const {
+			return &(operator*());
+		}
+		
+		//copy and assignment
+		SDAL_Iter( const SDAL_Iter& src) : iter_array(src.iter_array) {}
+		self_reference operator = ( SDAL_Iter<DataT> const& src) {
+			if (this == &src) {
+				return (*this);
+			}
+			iter_array = src.iter_array;
+			return *this;
+		}
+		//preincrement
+		self_reference operator++() {
+			++iter_array;
+			return *this;
+		} 
+		//postincrement
+		self_type operator++(int) {
+			self_type tmp = *this;
+			++(*this);
+			return tmp;
+		} 
+		
+		bool operator == ( SDAL_Iter<DataT> const& rhs) const {
+			return (iter_array == rhs.iter_array);
+		}
+		bool operator != ( SDAL_Iter<DataT> const& rhs) const {
+			return (iter_array != rhs.iter_array);
+		}
+	}; //end of iter
+	
+	public: 
+	//iter type aliases after iter code
+	using iterator = SDAL_Iter<E>;
+	using const_iterator = SDAL_Iter<E const>;
+	
+	//methods to create iters
+	//iterator end currently points to 1 past array_size
+	//because of this it traverses up to declared size of array
+	//TODO get size of list before creating end iter
+	iterator begin() {
+		iterator i(array);
+		return i;
+	}
+	iterator end() { 
+		iterator i(array+array_size+1);
+		return i;
+	}
+	
+	const_iterator begin() const {
+		const_iterator i(array);
+		return i;
+	}
+	const_iterator end() const {
+		const_iterator i(array+array_size+1);
+		return i;
+	}
 };
 
 //---constructors and destructors
@@ -55,21 +149,19 @@ SDAL<E>::SDAL(size_t size) {
 	//set private size variable
 	//init array of that size
 	//default to 50 if none given
-	array_size = size;
-	array = new E[size];
-	/*
 	if (size == 0) {
-		array = new E[50];
+		this->array = new E[50];
+		this->array_size = 50;
 	}
 	else {
-		array = new E[size];
+		this->array = new E[size];
+		this->array_size = size;
 	}
-	*/
 }
 
 template <typename E>
 SDAL<E>::~SDAL() {
-	delete array;
+	delete[] array;
 }
 
 //---new_node()
@@ -221,13 +313,23 @@ void SDAL<E>::clear() {
 }
 
 //---contains()
-//figure out what equals_fuctions is supposed to be
-/*
+//TODO figure out what equals_fuctions is supposed to be
 template <typename E>
-bool SDAL<E>::contains(E element, void (*equals_function)(E)) {
-	
+bool SDAL<E>::contains(E element) {
+	if (tail == -1) {
+		std::cout<<"List is empty!"<<std::endl;
+		return false;
+	}
+	for (int i = 0; i <= tail; i++) {
+		if (array[i] == element) {
+			std::cout<<element<<" exists in list!"<<std::endl;
+			return true;
+		}
+	}
+	std::cout<<element<<" is not in list!"<<std::endl;
+	return false;
 }
-*/
+
 
 //---print()
 template <typename E>

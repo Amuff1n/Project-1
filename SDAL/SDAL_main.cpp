@@ -9,10 +9,10 @@ int main() {
 	
 	std::cout<<"Input an initial size for the array-based list: "<<std::endl;
 	std::cin>>input;
+	SDAL<int> sdal_1(input);
 	
 	std::cout<<"Be aware, positions start at 0!"<<std::endl;
 	
-	SDAL<int> sdal_1(input);
 	while (true) {
 		std::cout<<"\n---Operations on SDAL---"<<std::endl;
 		std::cout<<"1. Push front"<<std::endl;
@@ -32,7 +32,8 @@ int main() {
 		std::cout<<"15. List contains input?"<<std::endl;
 		std::cout<<"16. Print list"<<std::endl;
 		std::cout<<"17. Return array of contents"<<std::endl;
-		std::cout<<"18. Exit"<<std::endl;
+		std::cout<<"18. Test Iterator (List must have 1+ elements!)"<<std::endl;
+		std::cout<<"19. Exit"<<std::endl;
         std::cout<<"Enter your choice : ";
         std::cin>>choice;
         switch(choice)
@@ -107,7 +108,7 @@ int main() {
 		case 15:
             std::cout<<"Input a value to check for: "<<std::endl;
 			std::cin>>input;
-			//sdal_1.contains(input);
+			sdal_1.contains(input);
             break; 	
 		case 16:
             std::cout<<"Printing list: "<<std::endl;
@@ -117,7 +118,18 @@ int main() {
             std::cout<<"Copying list to array and returning: "<<std::endl;
 			sdal_1.contents();
             break; 
-		case 18:
+		case 18: {
+			std::cout<<"Testing Iterator by printing out contents of list: "<<std::endl;
+			SDAL<int>::iterator iter = sdal_1.begin();
+			SDAL<int>::iterator end = sdal_1.end();
+			std::cout<<"[ ";
+			for ( ; iter != end; ++iter) {
+				std::cout<<*iter<< ", ";
+			}
+			std::cout<<"]"<<std::endl;
+			break;
+		}
+		case 19:
 			std::cout<<"Exiting"<<std::endl;
 			return 0;
         default:
