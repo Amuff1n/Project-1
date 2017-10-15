@@ -44,17 +44,6 @@ class CDAL : public LinkedList<E> {
 	//head and tail pointers for the linked list
 	Node<E> * head = 0;
 	Node<E> * tail = 0;
-	//head and tail indices for the arrays in those nodes
-	//head index will always be 0, but want to reduce magic numbers in code
-	size_t head_index = 0;
-	size_t tail_index = -1;
-};
-
-//create a new kind of node, array_node that extends node
-template <typename E>
-class array_node : public Node<E> {
-	public:
-	E * array = new E[50];
 };
 
 //---constructors and destructors
@@ -68,8 +57,7 @@ CDAL<E>::CDAL() {
 
 template <typename E>
 CDAL<E>::~CDAL() {
-	//node's should delete (deallocate) themselves in CDAL
-	//so the deconstructor shouldn't have to do anything
+	//TODO properly delete array when deleting node?
 }
 
 //---new_node()
@@ -77,17 +65,14 @@ template <typename E>
 Node<E> * CDAL<E>::new_node(E element) {
 	class Node<E> *temp_Node;
 	//catch error here if memory is not available when creating temp_Node
-	temp_Node = new array_node<E>;
-	if (head == 0) {
+	temp_Node = new Node<E>;
+	temp_Node->array = new E[50];
+	if (head == 0 && tail == 0) {
 		head = temp_Node;
 		tail = temp_Node;
 	}
-	else {
-		tail->next = temp_Node;
-		tail = temp_Node;
-		temp_Node->next = 0;
-	}
-	tail_index = -1;
+	temp_Node->head_index = 0;
+	temp_Node->tail_index = -1;
 	return temp_Node;
 }
 
@@ -96,33 +81,50 @@ template <typename E>
 void CDAL<E>::push_back(E element) {
 	//check for errors
 	class Node<E> *temp_Node;
-	//if we have no nodes or current node full, create new node
-	if (head == tail || tail_index == 50) {
+	temp_Node = tail;
+	//if our list has no nodes, make an initial one
+	if (temp_Node = 0) {
 		temp_Node = this->new_node(element);
 	}
-	else {
-		temp_Node = tail;
+	//if current node array is full, make new Node at tail
+	else if (temp_Node->tail_index == 49) {
+		temp_Node = this->new_node(element);
+		tail->next = temp_Node;
+		tail = temp_Node;
 	}
-	tail_index++;
-	temp_Node->array[tail] = element;
+	else {
+		tail->tail_index++;
+	}
 	
+	tail->array[tail->tail_index] = element;
 	std::cout<<"Pushed to back!"<<std::endl;
 }
 
 //---push_front()
 template <typename E>
 void CDAL<E>::push_front(E element) {
-	//check if pushing front goes past array size
-	//if so, have to create new node
-	
-	for (int i = tail;  i > 0; i--) {
-		head->array[i] = array[i - 1];
+	class Node<E> *temp_Node;
+	temp_Node = head;
+	if (temp_Node = nullptr) {
+		temp_Node = this->new_node(element);
+	} 
+	else if (temp_Node->head_index == 0) {
+		head->array[head->head_index] = element;
+		temp_Node = this->new_node(element);
+		temp_Node->next = head;
+		temp_Node->head_index = 50;
+		temp_Node->tail_index = 49;
+		head = temp_Node;
 	}
-	tail++;
-	head->array[head_index] = element;
+	else {
+		head->head_index--;
+		head->array[head->head_index] = element;
+	}
+	
 	std::cout<<"Pushed to front!"<<std::endl;
 }
 
+/*
 //---insert()
 //check if pos will be invalid
 template <typename E>
@@ -133,17 +135,14 @@ void CDAL<E>::insert(E element, int pos) {
 		std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
-	while (div (pos,50)) {
-		temp_Node = head->next;
+	size_t size = this->length();
+	if (pos >size) {
+		std::cout<<"Position invalid"<<std::endl;
+		return;
 	}
-	//check if 
-	for (int i = tail; i > 0; i--) {
-		temp_Node->array[i] = array[i - 1];
-	}
-	tail++;
-	temp_Node->array[pos] = element;
 	std::cout<<"Inserted!"<<std::endl;
 }
+*/
 
 //---replace()
 template <typename E>
@@ -154,11 +153,10 @@ void CDAL<E>::replace(E element, int pos) {
 		std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
-	for (int i = 0; i < pos - 1; i++) {
-		//catch an invalid position here later
-		temp = temp->next;
+	size_t size = this->length();
+	if (pos > size || pos <= 0) {
+		std::cout<<"Position Invalid"<<std::endl;
 	}
-	temp->data = element;
 	std::cout<<"Replaced!"<<std::endl;
 }
 
@@ -194,26 +192,6 @@ E CDAL<E>::pop_back() {
 	if (head == 0) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
-	}
-	//special case if list is size 1
-	else if (head == tail){
-		value = head->data;
-		delete tail;
-		tail = head = 0;
-		return value;
-	}
-	else {
-		value = tail->data;
-		//going to have to find new tail pointer, O(n), follow chain
-		class Node<E> *temp;
-		temp = head;
-		while (temp->next->next != 0) {
-			temp = temp->next;
-		}
-		tail = temp;
-		delete tail->next;
-		tail->next = 0;
-		return value;
 	}
 }
 //---pop_front()
@@ -305,8 +283,8 @@ size_t CDAL<E>::length() {
 	temp = head;
 	size_t length = 0;
 	while (temp != 0) {
+		length = length + (temp->tail_index - temp->head_index0
 		temp = temp->next;
-		length++;
 	}
 	return length;
 }

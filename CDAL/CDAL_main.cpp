@@ -46,7 +46,7 @@ int main() {
 			std::cin>>input;
 			std::cout<<"Input a position to insert at: "<<std::endl;
 			std::cin>>pos;
-			cdal_1.insert(input,pos);
+			//cdal_1.insert(input,pos);
             break;
         case 4:
             std::cout<<"Input a value to replace: "<<std::endl;
