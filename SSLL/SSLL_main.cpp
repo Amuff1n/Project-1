@@ -121,10 +121,12 @@ int main() {
             std::cout<<"Printing list: "<<std::endl;
 			ssll_1.print(stream);
             break; 	
-		case 17:
+		case 17: {
             std::cout<<"Copying list to array and returning: "<<std::endl;
-			ssll_1.contents();
+			int * output = ssll_1.contents();
+			delete[] output;
             break; 
+		}
 		case 18: {
 			std::cout<<"Testing Iterator by printing out contents of list: "<<std::endl;
 			SSLL<int>::iterator iter = ssll_1.begin();

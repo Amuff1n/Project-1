@@ -266,7 +266,7 @@ void SSLL<E>::insert(E element, int pos) {
 		return;
 	}
 	int size = this->length();
-	if (pos >= size || pos <= 0) {
+	if (pos > size || pos <= 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
@@ -298,7 +298,7 @@ void SSLL<E>::replace(E element, int pos) {
 		return;
 	}
 	int size = this->length();
-	if (pos >= size || pos <= 0) {
+	if (pos > size || pos <= 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
@@ -310,8 +310,6 @@ void SSLL<E>::replace(E element, int pos) {
 }
 
 //---remove()
-
-//TODO, removing the head crashes, probably has to do with indicated lines
 template <typename E>
 E SSLL<E>::remove(int pos) {
 	class Node<E> *temp, *prev;
@@ -321,12 +319,19 @@ E SSLL<E>::remove(int pos) {
 		return 0;
 	}
 	int size = this->length();
-	if (pos >= size || pos <= 0) {
+	if (pos > size || pos <= 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
+	//special case is pos = 1
+	if (pos == 1) {
+		head = head->next;
+		E value = temp->data;
+		delete temp;
+		return value;
+	}
 	for (int i = 1; i < pos; i++) {
-		prev = temp; //if pos is 1, prev = head
+		prev = temp;
 		temp = temp->next;
 	}
 	if (temp == head) {
@@ -336,7 +341,7 @@ E SSLL<E>::remove(int pos) {
 		tail = prev;
 	}
 	E value = temp->data;
-	prev->next = temp->next; //if prev = head, this might fuck up?
+	prev->next = temp->next; 
 	delete temp;
 	return value;
 }
@@ -397,7 +402,7 @@ E SSLL<E>::item_at(int pos) {
 		return 0;
 	}
 	int size = this->length();
-	if (pos >= size || pos <= 0) {
+	if (pos > size || pos <= 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
