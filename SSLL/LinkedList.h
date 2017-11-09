@@ -32,7 +32,7 @@ class LinkedList {
 	virtual size_t length() = 0;
 	virtual void clear() = 0;
 	
-	//virtual bool contains(E element, void (*equals_function)(E)) = 0;
+	virtual bool contains(E element, void (*equals_function)(E,E)) {};
 	virtual void print(std::ostream& stream) = 0;
 	virtual E* const contents() = 0;
 	

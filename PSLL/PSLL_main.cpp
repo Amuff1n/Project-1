@@ -2,6 +2,17 @@
 #include "PSLL.h"
 using namespace cop3530;
 
+//equals function declared here
+//returns true if both input values are equals
+bool equals_function (int one, int two) {
+	if (one == two) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 int main() {
 	//testing PSLL, int type
 	int choice, input, pos;
@@ -27,7 +38,8 @@ int main() {
 		std::cout<<"16. Print list"<<std::endl;
 		std::cout<<"17. Return array of contents"<<std::endl;
 		std::cout<<"18. Test Iterator (List must have 1+ elements!)"<<std::endl;
-		std::cout<<"19. Exit"<<std::endl;
+		std::cout<<"19. Test Copy member functions: "<<std::endl;
+		std::cout<<"20. Exit"<<std::endl;
         std::cout<<"Enter your choice : ";
         std::cin>>choice;
         switch(choice)
@@ -102,16 +114,18 @@ int main() {
 		case 15:
             std::cout<<"Input a value to check for: "<<std::endl;
 			std::cin>>input;
-			psll_1.contains(input);
+			psll_1.contains(input, equals_function);
             break; 	
 		case 16:
             std::cout<<"Printing list: "<<std::endl;
 			psll_1.print(stream);
             break; 	
-		case 17:
+		case 17: {
             std::cout<<"Copying list to array and returning: "<<std::endl;
-			psll_1.contents();
+			int * output = psll_1.contents();
+			delete[] output;
             break; 
+		}
 		case 18: {
 			std::cout<<"Testing Iterator by printing out contents of list: "<<std::endl;
 			PSLL<int>::iterator iter = psll_1.begin();
@@ -123,7 +137,18 @@ int main() {
 			std::cout<<"]"<<std::endl; 
 			break;
 		}
-		case 19:
+		case 19: {
+			std::cout<<"Testing copy constructor: "<<std::endl;
+			PSLL<int> psll_2 = psll_1;
+			psll_2.print(stream);
+			std::cout<<"Testing copy assignment: "<<std::endl;
+			PSLL<int> psll_3;
+			psll_3.push_back(1337); //throw some value in there to make sure we don't get it back
+			psll_3 = psll_1;
+			psll_3.print(stream);
+			break;
+		}
+		case 20:
 			std::cout<<"Exiting"<<std::endl;
 			return 0;
         default:

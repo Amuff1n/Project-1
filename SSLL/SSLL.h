@@ -149,7 +149,6 @@ SSLL<E>::SSLL() {
 
 template <typename E>
 SSLL<E>::~SSLL() {
-	//TODO
 	this->clear();
 }
 
@@ -183,7 +182,7 @@ SSLL<E>& SSLL<E>::operator=(const SSLL& other) {
 //---move constructor
 template <typename E>
 SSLL<E>::SSLL(SSLL&& other) {
-	head = other.head;
+	head = other->head;
 	tail = other->tail;
 	//set other to default values to avoid being automatically destroyed
 	other->head = nullptr;
@@ -493,7 +492,6 @@ void SSLL<E>::clear() {
 }
 
 //---contains()
-//TODO figure out what equals_fuctions is supposed to be, currently a hard coded function that tests ==
 template <typename E>
 bool SSLL<E>::contains(E element, bool (*equals_function)(E,E)) {
 	if (head == nullptr) {

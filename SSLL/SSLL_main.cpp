@@ -144,7 +144,7 @@ int main() {
 			ssll_2.print(stream);
 			std::cout<<"Testing copy assignment: "<<std::endl;
 			SSLL<int> ssll_3;
-			ssll_3.push_back(1337);
+			ssll_3.push_back(1337); //throw some value in there to make sure we don't get it back
 			ssll_3 = ssll_1;
 			ssll_3.print(stream);
 			break;
