@@ -15,7 +15,12 @@ template <typename E>
 class SSLL : public LinkedList<E> {
 	public:
 	SSLL();
-	~SSLL() override;
+	~SSLL() override; //destructor
+	SSLL(const SSLL& other); //copy constructor
+	SSLL<E>& operator= (const SSLL& other); //copy-assignment operator
+	SSLL(SSLL&& other); //move constructor
+	SSLL<E>& operator= (SSLL&& other); //move-assignment operator
+	
 	
 	Node<E> * new_node(E element) override;
 	void push_back(E element) override;
@@ -33,17 +38,17 @@ class SSLL : public LinkedList<E> {
 	size_t length() override;
 	void clear() override;
 	
-	bool contains(E element);	
+	bool contains(E element, bool (*equals_function)(E,E));	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
 	//type aliases
-	using size_t = std::size_t;
+	//using size_t = std::size_t;
 	using value_type = E;
 	
 	private: 
-	Node<E> * head = 0;
-	Node<E> * tail = 0;
+	Node<E> * head = nullptr;
+	Node<E> * tail = nullptr;
 	
 	public:
 	//iterator stuff
@@ -51,7 +56,7 @@ class SSLL : public LinkedList<E> {
 	class SSLL_Iter {
 		public:
 		//type aliases required for C++ iterator compatibility
-		using size_t = std::size_t;
+		//using size_t = std::size_t;
 		using value_type = DataT;
 		using reference = DataT&;
 		using pointer = DataT*;
@@ -138,14 +143,68 @@ template <typename E>
 SSLL<E>::SSLL() {
 	//nothing to really init
 	//set head and tail pointers to 0
-	this->head = 0;
-	this->tail = 0;
+	this->head = nullptr;
+	this->tail = nullptr;
 }
 
 template <typename E>
 SSLL<E>::~SSLL() {
-	//node's should delete (deallocate) themselves in SSLL
-	//so the deconstructor shouldn't have to do anything
+	//TODO
+	this->clear();
+}
+
+//---copy constructor
+template <typename E>
+SSLL<E>::SSLL(const SSLL& other) {
+	class Node<E> *temp;
+	temp = other.head;
+	while (temp) {
+		this->push_back(temp->data);
+		temp = temp->next;
+	}
+}
+
+//---copy-assignment
+//may have exception problems if other throws exceptions
+template <typename E>
+SSLL<E>& SSLL<E>::operator=(const SSLL& other) {
+	if (this != &other) {
+		this->clear();
+		class Node<E> *temp;
+		temp = other.head;
+		while (temp) {
+			this->push_back(temp->data);
+			temp = temp->next;
+		}
+	}
+	return *this;
+}
+
+//---move constructor
+template <typename E>
+SSLL<E>::SSLL(SSLL&& other) {
+	head = other.head;
+	tail = other->tail;
+	//set other to default values to avoid being automatically destroyed
+	other->head = nullptr;
+	other->tail = nullptr;
+}
+
+//---move-assignment
+template <typename E>
+SSLL<E>& SSLL<E>::operator=(SSLL&& other) {
+	//make sure we aren't referencing ourself
+	if (this != &other) {
+		//free existing data
+		this->clear();
+		head = other->head;
+		tail = other->tail;
+		
+		//set other to default values to avoid being automatically destroyed
+		other->head = nullptr;
+		other->tail = nullptr;
+	}
+	return *this;
 }
 
 //---new_node()
@@ -155,7 +214,7 @@ Node<E> * SSLL<E>::new_node(E element) {
 	class Node<E> *temp_Node;
 	temp_Node = new Node<E>;
 	temp_Node->data = element;
-	temp_Node->next = 0;
+	temp_Node->next = nullptr;
 	return temp_Node;
 }
 
@@ -164,10 +223,10 @@ template <typename E>
 void SSLL<E>::push_back(E element) {
 	class Node<E> *temp_Node, *temp;
 	temp_Node = this->new_node(element);
-	if (tail == 0) {
+	if (tail == nullptr) {
 		head = temp_Node;
 		tail = temp_Node;
-		tail->next = 0;
+		tail->next = nullptr;
 	}
 	else {
 		temp = tail;
@@ -183,10 +242,10 @@ template <typename E>
 void SSLL<E>::push_front(E element) {
 	class Node<E> *temp_Node, *temp;
 	temp_Node = this->new_node(element);
-	if (head == 0) {
+	if (head == nullptr) {
 		head = temp_Node;
 		tail = temp_Node;
-		head->next = 0;
+		head->next = nullptr;
 	}
 	else {
 		temp = head;
@@ -202,7 +261,7 @@ template <typename E>
 void SSLL<E>::insert(E element, int pos) {
 	class Node<E> *temp,*prev, *insert_node;
 	temp = head;
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
@@ -234,7 +293,7 @@ template <typename E>
 void SSLL<E>::replace(E element, int pos) {
 	class Node<E> *temp;
 	temp = head;
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
@@ -251,11 +310,13 @@ void SSLL<E>::replace(E element, int pos) {
 }
 
 //---remove()
+
+//TODO, removing the head crashes, probably has to do with indicated lines
 template <typename E>
 E SSLL<E>::remove(int pos) {
 	class Node<E> *temp, *prev;
 	temp = head;
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
@@ -265,7 +326,7 @@ E SSLL<E>::remove(int pos) {
 		return 0;
 	}
 	for (int i = 1; i < pos; i++) {
-		prev = temp;
+		prev = temp; //if pos is 1, prev = head
 		temp = temp->next;
 	}
 	if (temp == head) {
@@ -275,7 +336,7 @@ E SSLL<E>::remove(int pos) {
 		tail = prev;
 	}
 	E value = temp->data;
-	prev->next = temp->next;
+	prev->next = temp->next; //if prev = head, this might fuck up?
 	delete temp;
 	return value;
 }
@@ -284,7 +345,7 @@ E SSLL<E>::remove(int pos) {
 template <typename E>
 E SSLL<E>::pop_back() {
 	E value;
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
@@ -292,7 +353,7 @@ E SSLL<E>::pop_back() {
 	else if (head == tail){
 		value = head->data;
 		delete tail;
-		tail = head = 0;
+		tail = head = nullptr;
 		return value;
 	}
 	else {
@@ -300,12 +361,12 @@ E SSLL<E>::pop_back() {
 		//going to have to find new tail pointer, O(n), follow chain
 		class Node<E> *temp;
 		temp = head;
-		while (temp->next->next != 0) {
+		while (temp->next->next != nullptr) {
 			temp = temp->next;
 		}
 		tail = temp;
 		delete tail->next;
-		tail->next = 0;
+		tail->next = nullptr;
 		return value;
 	}
 }
@@ -314,7 +375,7 @@ template <typename E>
 E SSLL<E>::pop_front() {
 	E value;
 	class Node<E> *temp_Node;
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
@@ -331,7 +392,7 @@ template <typename E>
 E SSLL<E>::item_at(int pos) {
 	class Node<E> *temp, *prev;
 	temp = head;
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
@@ -351,7 +412,7 @@ E SSLL<E>::item_at(int pos) {
 template <typename E>
 E SSLL<E>::peek_back() {
 	E value;
-	if (tail == 0) {
+	if (tail == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
@@ -365,7 +426,7 @@ E SSLL<E>::peek_back() {
 template <typename E>
 E SSLL<E>::peek_front() {
 	E value;
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
@@ -378,7 +439,7 @@ E SSLL<E>::peek_front() {
 //---is_empty()
 template <typename E>
 bool SSLL<E>::is_empty() {
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"Empty!"<<std::endl;
 		return true;
 	}
@@ -401,7 +462,7 @@ size_t SSLL<E>::length() {
 	class Node<E> *temp;
 	temp = head;
 	size_t length = 0;
-	while (temp != 0) {
+	while (temp != nullptr) {
 		temp = temp->next;
 		length++;
 	}
@@ -411,34 +472,34 @@ size_t SSLL<E>::length() {
 //---clear()
 template <typename E>
 void SSLL<E>::clear() {
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 	}
 	else {
 		class Node<E> *temp,*prev;
 		temp = head;
-		while (temp != 0) {
+		while (temp != nullptr) {
 			prev = temp;
 			temp = temp->next;
 			delete prev;
 		}
-	head = tail = 0;
+	head = tail = nullptr;
 	}
 }
 
 //---contains()
 //TODO figure out what equals_fuctions is supposed to be, currently a hard coded function that tests ==
 template <typename E>
-bool SSLL<E>::contains(E element) {
-	if (head == 0) {
+bool SSLL<E>::contains(E element, bool (*equals_function)(E,E)) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return false;
 	}
 	else {
 		class Node<E> *temp;
 		temp = head;
-		while (temp != 0) {
-			if (temp->data == element) {
+		while (temp != nullptr) {
+			if (equals_function(element,temp->data)) {
 				std::cout<<element<<" exists in list!"<<std::endl;
 				return true;
 			}
@@ -452,14 +513,14 @@ bool SSLL<E>::contains(E element) {
 //---print()
 template <typename E>
 void SSLL<E>::print(std::ostream& stream) {
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout <<"<empty list>"<< std::endl;
 	}
 	else {
 		class Node<E> *temp;
 		temp = head;
 		std::cout<<"[ ";
-		while (temp != 0) {
+		while (temp != nullptr) {
 			std::cout<<temp->data<<", ";
 			temp = temp->next;
 		}
@@ -470,7 +531,7 @@ void SSLL<E>::print(std::ostream& stream) {
 //---contents()
 template <typename E>
 E* const SSLL<E>::contents() {
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 	}
 	int size = this->length();
@@ -478,7 +539,7 @@ E* const SSLL<E>::contents() {
 	int i = 0;
 	class Node<E> *temp;
 	temp = head;
-	while (temp != 0) {
+	while (temp != nullptr) {
 		array[i] = temp->data;
 		temp = temp->next;
 		i++;

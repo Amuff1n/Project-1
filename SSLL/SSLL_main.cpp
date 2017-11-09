@@ -2,6 +2,17 @@
 #include "SSLL.h"
 using namespace cop3530;
 
+//equals function declared here
+//returns true if both input values are equals
+bool equals_function (int one, int two) {
+	if (one == two) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 int main() {
 	//testing SSLL, int type
 	int choice, input, pos;
@@ -28,7 +39,8 @@ int main() {
 		std::cout<<"16. Print list"<<std::endl;
 		std::cout<<"17. Return array of contents"<<std::endl;
 		std::cout<<"18. Test Iterator (List must have 1+ elements!)"<<std::endl;
-		std::cout<<"19. Exit"<<std::endl;
+		std::cout<<"19. Test Copy member functions"<<std::endl;
+		std::cout<<"20. Exit"<<std::endl;
         std::cout<<"Enter your choice : ";
         std::cin>>choice;
         switch(choice)
@@ -103,7 +115,7 @@ int main() {
 		case 15: 
             std::cout<<"Input a value to check for: "<<std::endl;
 			std::cin>>input;
-			ssll_1.contains(input);
+			ssll_1.contains(input, equals_function);
             break; 
 		case 16:
             std::cout<<"Printing list: "<<std::endl;
@@ -124,7 +136,18 @@ int main() {
 			std::cout<<"]"<<std::endl;
 			break;
 		}
-		case 19:
+		case 19: {
+			std::cout<<"Testing copy constructor: "<<std::endl;
+			SSLL<int> ssll_2 = ssll_1;
+			ssll_2.print(stream);
+			std::cout<<"Testing copy assignment: "<<std::endl;
+			SSLL<int> ssll_3;
+			ssll_3.push_back(1337);
+			ssll_3 = ssll_1;
+			ssll_3.print(stream);
+			break;
+		}
+		case 20:
 			std::cout<<"Exiting"<<std::endl;
 			return 0;
         default:

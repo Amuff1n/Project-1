@@ -12,7 +12,7 @@ class Node {
 	E  * array; //for CDAL, nodes will have a pointer to an array instead of just a value
 	Node<E> * next;
 	//Nodes will have their own head and tail indices but will not have their own operations
-	//List class does operations
+	//CDAL class does operations
 	size_t head_index = 0;
 	size_t tail_index = -1;
 };

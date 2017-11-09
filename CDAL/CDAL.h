@@ -2,7 +2,12 @@
 //combines the SSLL and the SDAL
 //chain of nodes where each node has an array of data
 
-//MAYBE EACH NODE SHOULD HAVE ITS OWN HEAD INDEX AND TAIL INDEX
+//nodes have their own head and tail indices they keep track of
+//pushing to front does not shift all elements to the right like in a normal array
+//this is because a node's head index may not always be 0 and pushing front goes to the head index of a node
+//if we hit the start of the array and want to push to front, we create a new node as the head node and push to that
+
+//this will make pushing and popping front an O(1) operation instead of O(n) like the SDAL
 
 //maybe change all the ints to size_t later?
 
@@ -35,7 +40,7 @@ class CDAL : public LinkedList<E> {
 	size_t length() override;
 	void clear() override;
 	
-	//bool contains(E element, void (*equals_function)(E)) override;	
+	bool contains(E element);	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
@@ -67,12 +72,13 @@ Node<E> * CDAL<E>::new_node(E element) {
 	//catch error here if memory is not available when creating temp_Node
 	temp_Node = new Node<E>;
 	temp_Node->array = new E[50];
-	if (head == 0 && tail == 0) {
+	if (head == nullptr && tail == nullptr) {
 		head = temp_Node;
 		tail = temp_Node;
 	}
 	temp_Node->head_index = 0;
-	temp_Node->tail_index = -1;
+	temp_Node->tail_index = 0;
+	
 	return temp_Node;
 }
 
@@ -83,7 +89,7 @@ void CDAL<E>::push_back(E element) {
 	class Node<E> *temp_Node;
 	temp_Node = tail;
 	//if our list has no nodes, make an initial one
-	if (temp_Node = 0) {
+	if (temp_Node == 0) {
 		temp_Node = this->new_node(element);
 	}
 	//if current node array is full, make new Node at tail
@@ -105,14 +111,14 @@ template <typename E>
 void CDAL<E>::push_front(E element) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
-	if (temp_Node = nullptr) {
+	if (temp_Node == nullptr) {
 		temp_Node = this->new_node(element);
 	} 
-	else if (temp_Node->head_index == 0) {
+	else if (temp_Node->head_index < 0) {
 		head->array[head->head_index] = element;
 		temp_Node = this->new_node(element);
 		temp_Node->next = head;
-		temp_Node->head_index = 50;
+		temp_Node->head_index = 49;
 		temp_Node->tail_index = 49;
 		head = temp_Node;
 	}
@@ -124,11 +130,14 @@ void CDAL<E>::push_front(E element) {
 	std::cout<<"Pushed to front!"<<std::endl;
 }
 
-/*
+//TODO FIGURE OUT A SOLUTION FOR THIS 
+//i don't want to have to manually move everything up but I just might
+
 //---insert()
 //check if pos will be invalid
 template <typename E>
 void CDAL<E>::insert(E element, int pos) {
+	/*
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == 0) {
@@ -141,8 +150,9 @@ void CDAL<E>::insert(E element, int pos) {
 		return;
 	}
 	std::cout<<"Inserted!"<<std::endl;
+	*/
 }
-*/
+
 
 //---replace()
 template <typename E>
@@ -157,12 +167,15 @@ void CDAL<E>::replace(E element, int pos) {
 	if (pos > size || pos <= 0) {
 		std::cout<<"Position Invalid"<<std::endl;
 	}
+	
 	std::cout<<"Replaced!"<<std::endl;
 }
 
+//TODO fix this, this is currently just copied from SDAL
 //---remove()
 template <typename E>
 E CDAL<E>::remove(int pos) {
+	/*
 	class Node<E> *temp, *prev;
 	temp = head;
 	if (head == 0) {
@@ -183,37 +196,42 @@ E CDAL<E>::remove(int pos) {
 	prev->next = temp->next;
 	delete temp;
 	return value;
+	*/
 }
 
 //---pop_back()
 template <typename E>
 E CDAL<E>::pop_back() {
 	E value;
-	if (head == 0) {
+	if (head == 0 || head->tail_index == -1) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
+	value = tail->array[tail->tail_index];
+	tail->tail_index--;
+	
+	return value;
 }
 //---pop_front()
 template <typename E>
 E CDAL<E>::pop_front() {
 	E value;
 	class Node<E> *temp_Node;
-	if (head == 0) {
+	if (head == 0 || head->tail_index == -1) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
-	value = head->data;
-	temp_Node = head;
-	head = head->next;
-	delete temp_Node;
+	value = head->array[head->head_index];
+	head->head_index++;
 	
 	return value;
 }
 
+//TODO fix this, currently just copied from SDAL
 //---item_at()
 template <typename E>
 E CDAL<E>::item_at(int pos) {
+	/*
 	class Node<E> *temp, *prev;
 	temp = head;
 	if (head == 0) {
@@ -226,18 +244,19 @@ E CDAL<E>::item_at(int pos) {
 	}
 	E value = temp->data;
 	return value;
+	*/
 }
 
 //---peek_back()
 template <typename E>
 E CDAL<E>::peek_back() {
 	E value;
-	if (tail == 0) {
+	if (tail == 0 || tail->tail_index == -1) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	else {
-	value = tail->data;
+	value = tail->array[tail->tail_index];
 	return value;
 	}
 }
@@ -246,12 +265,12 @@ E CDAL<E>::peek_back() {
 template <typename E>
 E CDAL<E>::peek_front() {
 	E value;
-	if (head == 0) {
+	if (head == 0 || head->tail_index == -1) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	else {
-	value = head->data;
+	value = head->array[head->head_index];
 	return value;
 	}
 }
@@ -259,7 +278,7 @@ E CDAL<E>::peek_front() {
 //---is_empty()
 template <typename E>
 bool CDAL<E>::is_empty() {
-	if (head == 0) {
+	if (head == 0 || head->tail_index == -1) {
 		std::cout<<"Empty!"<<std::endl;
 		return true;
 	}
@@ -283,7 +302,7 @@ size_t CDAL<E>::length() {
 	temp = head;
 	size_t length = 0;
 	while (temp != 0) {
-		length = length + (temp->tail_index - temp->head_index0
+		length = length + (temp->tail_index - temp->head_index);
 		temp = temp->next;
 	}
 	return length;
@@ -308,47 +327,51 @@ void CDAL<E>::clear() {
 }
 
 //---contains()
-//figure out what equals_fuctions is supposed to be
-/*
+//TODO figure out what equals function should be and how the hell it works
 template <typename E>
-bool CDAL<E>::contains(E element, void (*equals_function)(E)) {
+bool CDAL<E>::contains(E element) {
 	
 }
-*/
+
 
 //---print()
 template <typename E>
 void CDAL<E>::print(std::ostream& stream) {
-	if (head == 0) {
+	class Node<E> *temp;
+	temp = head;
+	if (head == 0 || temp->tail_index == -1) {
 		std::cout <<"<empty list>"<< std::endl;
 	}
-	else {
-		class Node<E> *temp;
-		temp = head;
-		std::cout<<"[ ";
-		while (temp != 0) {
-			std::cout<<temp->data<<", ";
-			temp = temp->next;
+	
+	std::cout<<"[ ";
+	while (temp != 0) {
+		for (int i = temp->head_index; i < temp->tail_index; i++) {
+			std::cout<<temp->array[i]<<", ";
 		}
-		std::cout<<"]"<<std::endl;
+		temp=temp->next;
 	}
+	std::cout<<"]"<<std::endl;
 }
 
 //---contents()
 template <typename E>
 E* const CDAL<E>::contents() {
-	if (head == 0) {
-		std::cout<<"List is empty!"<<std::endl;
-	}
-	int size = this->length();
-	E *array = new E[size];
-	int i = 0;
 	class Node<E> *temp;
 	temp = head;
+	if (head == 0 || temp->tail_index == -1) {
+		std::cout<<"List is empty!"<<std::endl;
+	}
+	
+	int size = this->length();
+	E *copy_array = new E[size];
+	int j = 0;
+	
 	while (temp != 0) {
-		array[i] = temp->data;
-		temp = temp->next;
-		i++;
+		for (int i = temp->head_index; i < temp->tail_index; i++) {
+			copy_array[j] = temp->array[i];
+			j++;
+		}
+		temp=temp->next;
 	}
 	
 	//print array for testing purposes
@@ -358,7 +381,7 @@ E* const CDAL<E>::contents() {
 	}
 	*/
 	
-	return array;
+	return copy_array;
 }
 
 }
