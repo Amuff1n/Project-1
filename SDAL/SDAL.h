@@ -3,8 +3,8 @@
 
 //maybe change all the ints to size_t later?
 
-//TODO ARRAY DOES NOT INIT TO RIGHT SIZE CURRENTLY
-//TODO NEW ARRAY ALLOCATION NOT YET IMPLEMENTED
+//TODO Iterator breaks when new array allocated, wait maybe not?
+// do more testing dingus
 
 #ifndef _SDAL_H_
 #define _SDAL_H_
@@ -38,6 +38,8 @@ class SDAL : public LinkedList<E> {
 	bool is_full() override;
 	size_t length() override;
 	void clear() override;
+	
+	void allocate_new();
 	
 	bool contains(E element, bool (*equals_function)(E,E));	
 	void print(std::ostream& stream) override;
@@ -188,7 +190,7 @@ SDAL<E>& SDAL<E>::operator=(const SDAL& other) {
 	//clear current array, set default values, then copy
 	if (this != &other) {
 		delete[] array;
-		tail = -1;
+		tail = 0;
 		array_size = other.array_size;
 		array = new E[array_size];
 		for (int i = 0; i < array_size; i++) {
@@ -209,7 +211,7 @@ SDAL<E>::SDAL(SDAL&& other) {
 		//set others values to default
 		delete[] other.array;
 		other.array_size = 0;
-		other.tail = -1;
+		other.tail = 0;
 }
 
 //---move-assignment
@@ -220,7 +222,7 @@ SDAL<E>& SDAL<E>::operator=(SDAL&& other) {
 		//free and default ourself;
 		delete array;
 		array_size = 0;
-		tail = -1;
+		tail = 0;
 		
 		array = other.array;
 		array_size = other.array_size;
@@ -247,6 +249,9 @@ Node<E> * SDAL<E>::new_node(E element) {
 template <typename E>
 void SDAL<E>::push_back(E element) {
 	//check for errors
+	if (tail >= array_size) {
+		this->allocate_new();
+	}
 	tail++;
 	array[tail-1] = element;
 	
@@ -257,6 +262,9 @@ void SDAL<E>::push_back(E element) {
 template <typename E>
 void SDAL<E>::push_front(E element) {
 	//check for errors
+	if (tail >= array_size) {
+		this->allocate_new();
+	}
 	size_t size = this->length();
 	for (int i = size;  i > 0; i--) {
 		array[i] = array[i - 1];
@@ -273,6 +281,10 @@ void SDAL<E>::insert(E element, int pos) {
 	if (pos > tail-1 || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
+	}
+	
+	if (tail >= array_size) {
+		this->allocate_new();
 	}
 	
 	size_t size = this->length();
@@ -306,6 +318,10 @@ E SDAL<E>::remove(int pos) {
 		return 0;
 	}
 	
+	if (array_size >= 100 && tail < array_size/2) {
+		this->allocate_new();
+	}
+	
 	size_t size = this->length();
 	E value = array[pos];
 	for (int i = pos; i < size; i++) {
@@ -318,6 +334,10 @@ E SDAL<E>::remove(int pos) {
 //---pop_back()
 template <typename E>
 E SDAL<E>::pop_back() {
+	if (array_size >= 100 && tail < array_size/2) {
+		this->allocate_new();
+	}
+	
 	E value;
 	value = array[tail-1];
 	tail--;
@@ -327,6 +347,10 @@ E SDAL<E>::pop_back() {
 //---pop_front()
 template <typename E>
 E SDAL<E>::pop_front() {
+	if (array_size >= 100 && tail < array_size/2) {
+		this->allocate_new();
+	}
+	
 	size_t size = this->length();
 	E value = array[0];
 	for (int i = 0; i < size; i++) {
@@ -438,12 +462,13 @@ void SDAL<E>::print(std::ostream& stream) {
 		std::cout<<array[i]<<", ";
 	}
 	std::cout<<"]"<<std::endl;
+	std::cout<<"array_size: "<<array_size<<std::endl;
 }
 
 //---contents()
 template <typename E>
 E* const SDAL<E>::contents() {
-	E * copied_Array = new E[this->tail + 1];
+	E * copied_Array = new E[tail];
 	for (int i = 0; i < tail; i++) {
 		copied_Array[i] = array[i];
 	}
@@ -456,6 +481,36 @@ E* const SDAL<E>::contents() {
 	*/
 	
 	return copied_Array;
+}
+
+//---allocate_new()
+//allocate new array with new size
+template <typename E>
+void SDAL<E>::allocate_new() {
+	if (array_size >= 100 && tail < array_size/2) {
+		//allocate new array 75% size of original
+		//copy items over
+		//deallocate original one
+		array_size = array_size * 0.75;
+		E * temp = new E[array_size];
+		for (int i = 0; i < tail; i++) {
+			temp[i] = array[i];
+		}
+		delete[] array;
+		array = temp;
+	}
+	else {
+		//allocate new array 150% size of original
+		//copy items over
+		//deallocate original one
+		array_size = array_size * 1.5; 
+		E * temp = new E[array_size];
+		for (int i = 0; i < tail; i++) {
+			temp[i] = array[i];
+		}
+		delete[] array;
+		array = temp;
+	}
 }
 
 }
