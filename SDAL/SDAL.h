@@ -1,6 +1,5 @@
 //Simple Dynamic Array-based List
 //implements the Linked List using backing array
-//assuming user will not input a pos outside of list size
 
 //maybe change all the ints to size_t later?
 
@@ -54,8 +53,7 @@ class SDAL : public LinkedList<E> {
 	size_t array_size; //does NOT store size of list, rather the size of the ARRAY
 	//in this implementation, tail is an index
 	//head pointer will always be array[0]
-	size_t head = 0;
-	size_t tail = -1;
+	size_t tail = 0;
 	
 	public:
 	//iterator stuff
@@ -179,7 +177,6 @@ SDAL<E>::SDAL(const SDAL& other) {
 	for (int i = 0; i < array_size; i++) {
 		array[i] = other.array[i];
 	}
-	head = other.head;
 	tail = other.tail;
 }
 
@@ -191,14 +188,12 @@ SDAL<E>& SDAL<E>::operator=(const SDAL& other) {
 	//clear current array, set default values, then copy
 	if (this != &other) {
 		delete[] array;
-		head = 0;
 		tail = -1;
 		array_size = other.array_size;
 		array = new E[array_size];
 		for (int i = 0; i < array_size; i++) {
 			array[i] = other.array[i];
 		}
-		head = other.head;
 		tail = other.tail;
 	}
 	return *this;
@@ -209,13 +204,11 @@ template <typename E>
 SDAL<E>::SDAL(SDAL&& other) {
 		array = other.array;
 		array_size = other.array_size;
-		head = other.head;
 		tail = other.tail;
 	
 		//set others values to default
 		delete[] other.array;
 		other.array_size = 0;
-		other.head = 0;
 		other.tail = -1;
 }
 
@@ -227,18 +220,15 @@ SDAL<E>& SDAL<E>::operator=(SDAL&& other) {
 		//free and default ourself;
 		delete array;
 		array_size = 0;
-		head = 0;
 		tail = -1;
 		
 		array = other.array;
 		array_size = other.array_size;
-		head = other.head;
 		tail = other.tail;
 	
 		//set others values to default
 		delete[] other.array;
 		other.array_size = 0;
-		other.head = 0;
 		other.tail = -1;
 	}
 	return *this;
@@ -258,7 +248,7 @@ template <typename E>
 void SDAL<E>::push_back(E element) {
 	//check for errors
 	tail++;
-	array[tail] = element;
+	array[tail-1] = element;
 	
 	std::cout<<"Pushed to back!"<<std::endl;
 }
@@ -272,7 +262,7 @@ void SDAL<E>::push_front(E element) {
 		array[i] = array[i - 1];
 	}
 	tail++;
-	array[head] = element;
+	array[0] = element;
 	std::cout<<"Pushed to front!"<<std::endl;
 }
 
@@ -280,7 +270,7 @@ void SDAL<E>::push_front(E element) {
 template <typename E>
 void SDAL<E>::insert(E element, int pos) {
 	//check if invalid index
-	if (pos > tail || pos < 0) {
+	if (pos > tail-1 || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
@@ -298,7 +288,7 @@ void SDAL<E>::insert(E element, int pos) {
 template <typename E>
 void SDAL<E>::replace(E element, int pos) {
 	//check if invalid index
-	if (pos > tail || pos < 0) {
+	if (pos > tail-1 || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
@@ -311,7 +301,7 @@ void SDAL<E>::replace(E element, int pos) {
 template <typename E>
 E SDAL<E>::remove(int pos) {
 	//check if invalid index 
-	if (pos > tail || pos < 0) {
+	if (pos > tail-1 || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
@@ -329,7 +319,7 @@ E SDAL<E>::remove(int pos) {
 template <typename E>
 E SDAL<E>::pop_back() {
 	E value;
-	value = array[tail];
+	value = array[tail-1];
 	tail--;
 	return value;
 }
@@ -338,7 +328,7 @@ E SDAL<E>::pop_back() {
 template <typename E>
 E SDAL<E>::pop_front() {
 	size_t size = this->length();
-	E value = array[head];
+	E value = array[0];
 	for (int i = 0; i < size; i++) {
 		array[i] = array[i + 1];
 	}
@@ -350,7 +340,7 @@ E SDAL<E>::pop_front() {
 template <typename E>
 E SDAL<E>::item_at(int pos) {
 	//check if invalid index 
-	if (pos > tail || pos < 0) {
+	if (pos > tail-1 || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
@@ -362,21 +352,21 @@ E SDAL<E>::item_at(int pos) {
 //---peek_back()
 template <typename E>
 E SDAL<E>::peek_back() {
-	E value = array[tail];
+	E value = array[tail-1];
 	return value;
 }
 
 //---peek_front()
 template <typename E>
 E SDAL<E>::peek_front() {
-	E value = array[head];
+	E value = array[0];
 	return value;
 }
 
 //---is_empty()
 template <typename E>
 bool SDAL<E>::is_empty() {
-	if (array[head] == 0 && tail == 0) {
+	if (array[0] == 0 && tail == 0) {
 		std::cout<<"Empty!"<<std::endl;
 		return true;
 	}
@@ -403,7 +393,7 @@ bool SDAL<E>::is_full() {
 //---length()
 template <typename E>
 size_t SDAL<E>::length() {
-	size_t length = tail + 1;
+	size_t length = tail;
 	return length;
 }
 
@@ -415,14 +405,13 @@ void SDAL<E>::clear() {
 	for (int i = 0; i < array_size; i++){
 			array[i] = 0;
 	}
-	head = 0;
-	tail = -1;
+	tail = 0;
 }
 
 //---contains()
 template <typename E>
 bool SDAL<E>::contains(E element, bool (*equals_function)(E,E)) {
-	if (tail == -1) {
+	if (tail == 0) {
 		std::cout<<"List is empty!"<<std::endl;
 		return false;
 	}
@@ -440,12 +429,12 @@ bool SDAL<E>::contains(E element, bool (*equals_function)(E,E)) {
 //---print()
 template <typename E>
 void SDAL<E>::print(std::ostream& stream) {
-	if (tail == -1) {
+	if (tail == 0) {
 		std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
 	std::cout<<"[ ";
-	for (int i = 0; i <= tail; i++) {
+	for (int i = 0; i < tail; i++) {
 		std::cout<<array[i]<<", ";
 	}
 	std::cout<<"]"<<std::endl;
