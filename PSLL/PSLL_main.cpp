@@ -144,6 +144,7 @@ int main() {
 			std::cout<<"Testing copy assignment: "<<std::endl;
 			PSLL<int> psll_3;
 			psll_3.push_back(1337); //throw some value in there to make sure we don't get it back
+			psll_3.print(stream); //print that to show it is different
 			psll_3 = psll_1;
 			psll_3.print(stream);
 			break;

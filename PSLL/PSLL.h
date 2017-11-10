@@ -586,7 +586,6 @@ void PSLL<E>::clear() {
 }
 
 //---contains()
-//TODO figure out what equals_fuctions is supposed to be, currently a hard coded function that tests ==
 template <typename E>
 bool PSLL<E>::contains(E element, bool (*equals_function)(E,E)) {
 	if (head == nullptr) {

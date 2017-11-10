@@ -19,6 +19,10 @@ class SDAL : public LinkedList<E> {
 	public:
 	SDAL(size_t size);
 	~SDAL() override;
+	SDAL(const SDAL& other); //copy constructor
+	SDAL<E>& operator= (const SDAL& other); //copy-assignment operator
+	SDAL(SDAL&& other); //move constructor
+	SDAL<E>& operator= (SDAL&& other); //move-assignment operator
 	
 	Node<E> * new_node(E element) override;
 	void push_back(E element) override;
@@ -36,12 +40,12 @@ class SDAL : public LinkedList<E> {
 	size_t length() override;
 	void clear() override;
 	
-	bool contains(E element);	
+	bool contains(E element, bool (*equals_function)(E,E));	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
 	//type aliases
-	using size_t = std::size_t;
+	//using size_t = std::size_t;
 	using value_type = E;
 	
 	private: 
@@ -55,11 +59,12 @@ class SDAL : public LinkedList<E> {
 	
 	public:
 	//iterator stuff
+	//iterator points to one past array size, so last 'value' will be garbage data
 	template <typename DataT>
 	class SDAL_Iter {
 		public:
 		//type aliases required for C++ iterator compatibility
-		using size_t = std::size_t;
+		//using size_t = std::size_t;
 		using value_type = DataT;
 		using reference = DataT&;
 		using pointer = DataT*;
@@ -150,18 +155,93 @@ SDAL<E>::SDAL(size_t size) {
 	//init array of that size
 	//default to 50 if none given
 	if (size == 0) {
-		this->array = new E[50];
-		this->array_size = 50;
+		array = new E[50];
+		array_size = 50;
 	}
 	else {
-		this->array = new E[size];
-		this->array_size = size;
+		array = new E[size];
+		array_size = size;
 	}
 }
 
 template <typename E>
 SDAL<E>::~SDAL() {
 	delete[] array;
+}
+
+//---copy constructor
+template <typename E>
+SDAL<E>::SDAL(const SDAL& other) {
+	//get array size of other
+	//set self array to that size and copy values
+	array_size = other.array_size;
+	array = new E[array_size];
+	for (int i = 0; i < array_size; i++) {
+		array[i] = other.array[i];
+	}
+	head = other.head;
+	tail = other.tail;
+}
+
+//---copy-assignment
+//may have exception problems if other throws exceptions
+template <typename E>
+SDAL<E>& SDAL<E>::operator=(const SDAL& other) {
+	//make sure we aren't referencing ourself
+	//clear current array, set default values, then copy
+	if (this != &other) {
+		delete[] array;
+		head = 0;
+		tail = -1;
+		array_size = other.array_size;
+		array = new E[array_size];
+		for (int i = 0; i < array_size; i++) {
+			array[i] = other.array[i];
+		}
+		head = other.head;
+		tail = other.tail;
+	}
+	return *this;
+}
+
+//---move constructor
+template <typename E>
+SDAL<E>::SDAL(SDAL&& other) {
+		array = other.array;
+		array_size = other.array_size;
+		head = other.head;
+		tail = other.tail;
+	
+		//set others values to default
+		delete[] other.array;
+		other.array_size = 0;
+		other.head = 0;
+		other.tail = -1;
+}
+
+//---move-assignment
+template <typename E>
+SDAL<E>& SDAL<E>::operator=(SDAL&& other) {
+	//make sure we aren't referencing ourself
+	if (this != &other) {
+		//free and default ourself;
+		delete array;
+		array_size = 0;
+		head = 0;
+		tail = -1;
+		
+		array = other.array;
+		array_size = other.array_size;
+		head = other.head;
+		tail = other.tail;
+	
+		//set others values to default
+		delete[] other.array;
+		other.array_size = 0;
+		other.head = 0;
+		other.tail = -1;
+	}
+	return *this;
 }
 
 //---new_node()
@@ -197,10 +277,14 @@ void SDAL<E>::push_front(E element) {
 }
 
 //---insert()
-//check if pos will be invalid
 template <typename E>
 void SDAL<E>::insert(E element, int pos) {
 	//check if invalid index
+	if (pos > tail || pos < 0) {
+		std::cout<<"Invalid position"<<std::endl;
+		return;
+	}
+	
 	size_t size = this->length();
 	for (int i = size; i > pos; i--) {
 		array[i] = array[i - 1];
@@ -214,6 +298,11 @@ void SDAL<E>::insert(E element, int pos) {
 template <typename E>
 void SDAL<E>::replace(E element, int pos) {
 	//check if invalid index
+	if (pos > tail || pos < 0) {
+		std::cout<<"Invalid position"<<std::endl;
+		return;
+	}
+	
 	array[pos] = element;
 	std::cout<<"Replaced!"<<std::endl;
 }
@@ -221,6 +310,12 @@ void SDAL<E>::replace(E element, int pos) {
 //---remove()
 template <typename E>
 E SDAL<E>::remove(int pos) {
+	//check if invalid index 
+	if (pos > tail || pos < 0) {
+		std::cout<<"Invalid position"<<std::endl;
+		return 0;
+	}
+	
 	size_t size = this->length();
 	E value = array[pos];
 	for (int i = pos; i < size; i++) {
@@ -254,6 +349,12 @@ E SDAL<E>::pop_front() {
 //---item_at()
 template <typename E>
 E SDAL<E>::item_at(int pos) {
+	//check if invalid index 
+	if (pos > tail || pos < 0) {
+		std::cout<<"Invalid position"<<std::endl;
+		return 0;
+	}
+	
 	E value = array[pos];
 	return value;
 }
@@ -307,21 +408,26 @@ size_t SDAL<E>::length() {
 }
 
 //---clear()
+//just defaults all values in array to 0, doesn't delete array
+//sets head and tail indices
 template <typename E>
 void SDAL<E>::clear() {
-	array = {0};
+	for (int i = 0; i < array_size; i++){
+			array[i] = 0;
+	}
+	head = 0;
+	tail = -1;
 }
 
 //---contains()
-//TODO figure out what equals_fuctions is supposed to be
 template <typename E>
-bool SDAL<E>::contains(E element) {
+bool SDAL<E>::contains(E element, bool (*equals_function)(E,E)) {
 	if (tail == -1) {
 		std::cout<<"List is empty!"<<std::endl;
 		return false;
 	}
 	for (int i = 0; i <= tail; i++) {
-		if (array[i] == element) {
+		if (equals_function(element,array[i])) {
 			std::cout<<element<<" exists in list!"<<std::endl;
 			return true;
 		}
