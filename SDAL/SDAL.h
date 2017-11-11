@@ -53,6 +53,7 @@ class SDAL : public LinkedList<E> {
 	E * array;
 	
 	size_t array_size; //does NOT store size of list, rather the size of the ARRAY
+	size_t init_size; //original user specified size, used for array allocation
 	//in this implementation, tail is an index
 	//head pointer will always be array[0]
 	size_t tail = 0;
@@ -157,10 +158,12 @@ SDAL<E>::SDAL(size_t size) {
 	if (size == 0) {
 		array = new E[50];
 		array_size = 50;
+		init_size = 50;
 	}
 	else {
 		array = new E[size];
 		array_size = size;
+		init_size = 50;
 	}
 }
 
@@ -487,7 +490,7 @@ E* const SDAL<E>::contents() {
 //allocate new array with new size
 template <typename E>
 void SDAL<E>::allocate_new() {
-	if (array_size >= 100 && tail < array_size/2) {
+	if (array_size >= (init_size * 2) && tail < array_size/2) {
 		//allocate new array 75% size of original
 		//copy items over
 		//deallocate original one

@@ -1,5 +1,5 @@
 //Chained Dynamic Array-based list
-//combines the SSLL and the SDAL
+//combines the CDAL and the CDAL
 //chain of nodes where each node has an array of data
 
 //nodes have their own head and tail indices they keep track of
@@ -7,7 +7,7 @@
 //this is because a node's head index may not always be 0 and pushing front goes to the head index of a node
 //if we hit the start of the array and want to push to front, we create a new node as the head node and push to that
 
-//this will make pushing and popping front an O(1) operation instead of O(n) like the SDAL
+//this will make pushing and popping front an O(1) operation instead of O(n) like the CDAL
 
 //maybe change all the ints to size_t later?
 
@@ -23,6 +23,10 @@ class CDAL : public LinkedList<E> {
 	public:
 	CDAL();
 	~CDAL() override;
+	CDAL(const CDAL& other); //copy constructor
+	CDAL<E>& operator= (const CDAL& other); //copy-assignment operator
+	CDAL(CDAL&& other); //move constructor
+	CDAL<E>& operator= (CDAL&& other); //move-assignment operator
 	
 	Node<E> * new_node(E element) override;
 	void push_back(E element) override;
@@ -40,15 +44,79 @@ class CDAL : public LinkedList<E> {
 	size_t length() override;
 	void clear() override;
 	
-	bool contains(E element);	
+	bool contains(E element, bool (*equals_function)(E,E));	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
 	
 	private: 
 	//head and tail pointers for the linked list
-	Node<E> * head = 0;
-	Node<E> * tail = 0;
+	Node<E> * head = nullptr;
+	Node<E> * tail = nullptr;
+	
+	public:
+	//TODO ITERATOR STUFF
+	
+	template <typename DataT>
+	class CDAL_Iter {
+		public:
+		//type aliases required for C++ iterator compatibility
+		//using size_t = std::size_t;
+		using value_type = DataT;
+		using reference = DataT&;
+		using pointer = DataT*;
+		using difference_type = std::ptrdiff_t;
+		using iterator_category = std::forward_iterator_tag;
+		
+		//type aliases for prettier(!) code
+		using self_type = CDAL_Iter;
+		using self_reference = CDAL_Iter&;
+		
+		private:
+		Node<E> * here;
+		
+		public:
+		//constructor
+		explicit CDAL_Iter(Node<E> * start = nullptr) : here(start) {}
+		
+		//operations
+		reference operator*() const {
+			return here->data;
+		}
+		pointer operator->() const {
+			return &(operator*());
+		}
+		
+		//copy and assignment
+		CDAL_Iter( const CDAL_Iter& src) : here (src.here) {}
+		self_reference operator = ( CDAL_Iter<DataT> const& src) {
+			if (this == &src) {
+				return (*this);
+			}
+			here = src.here;
+			return *this;
+		}
+		//preincrement
+		self_reference operator++() {
+			if (here) {
+				here = here->next;
+			}
+			return *this;
+		} 
+		//postincrement
+		self_type operator++(int) {
+			self_type tmp = *this;
+			++(*this);
+			return tmp;
+		} 
+		
+		bool operator == ( CDAL_Iter<DataT> const& rhs) const {
+			return (here == rhs.here);
+		}
+		bool operator != ( CDAL_Iter<DataT> const& rhs) const {
+			return (here != rhs.here);
+		}
+	};
 };
 
 //---constructors and destructors
@@ -56,28 +124,86 @@ template <typename E>
 CDAL<E>::CDAL() {
 	//nothing to really init
 	//set head and tail pointers to 0
-	this->head = 0;
-	this->tail = 0;
+	head = nullptr;
+	tail = nullptr;
 }
 
 template <typename E>
 CDAL<E>::~CDAL() {
-	//TODO properly delete array when deleting node?
+	this->clear();
+}
+
+//---copy constructor
+template <typename E>
+CDAL<E>::CDAL(const CDAL& other) {
+	class Node<E> *temp;
+	temp = other.head;
+	while (temp) {
+		for (int i = 0; i < temp->tail_index; i++) {
+			this->push_back(temp->array[i]);
+		}
+		temp = temp->next;
+	}
+}
+
+//---copy-assignment
+//may have exception problems if other throws exceptions
+template <typename E>
+CDAL<E>& CDAL<E>::operator=(const CDAL& other) {
+	//make sure we aren't referencing ourself
+	if (this != &other) {
+		this->clear();
+		class Node<E> *temp;
+		temp = other.head;
+		while (temp) {
+			for (int i = 0; i < temp->tail_index; i++) {
+				this->push_back(temp->array[i]);
+			}
+			temp = temp->next;
+		}
+	}
+	return *this;
+}
+
+//---move constructor
+template <typename E>
+CDAL<E>::CDAL(CDAL&& other) {
+	head = other->head;
+	tail = other->tail;
+	//set other to default values to avoid being automatically destroyed
+	other->head = nullptr;
+	other->tail = nullptr;
+}
+
+//---move-assignment
+template <typename E>
+CDAL<E>& CDAL<E>::operator=(CDAL&& other) {
+	//make sure we aren't referencing ourself
+	if (this != &other) {
+		//free existing data
+		this->clear();
+		head = other->head;
+		tail = other->tail;
+		
+		//set other to default values to avoid being automatically destroyed
+		other->head = nullptr;
+		other->tail = nullptr;
+	}
+	return *this;
 }
 
 //---new_node()
 template <typename E>
 Node<E> * CDAL<E>::new_node(E element) {
 	class Node<E> *temp_Node;
-	//catch error here if memory is not available when creating temp_Node
 	temp_Node = new Node<E>;
 	temp_Node->array = new E[50];
 	if (head == nullptr && tail == nullptr) {
 		head = temp_Node;
 		tail = temp_Node;
 	}
-	temp_Node->head_index = 0;
 	temp_Node->tail_index = 0;
+	temp_Node->next = nullptr;
 	
 	return temp_Node;
 }
@@ -89,20 +215,19 @@ void CDAL<E>::push_back(E element) {
 	class Node<E> *temp_Node;
 	temp_Node = tail;
 	//if our list has no nodes, make an initial one
-	if (temp_Node == 0) {
+	if (temp_Node == nullptr) {
 		temp_Node = this->new_node(element);
 	}
 	//if current node array is full, make new Node at tail
-	else if (temp_Node->tail_index == 49) {
+	if (temp_Node->tail_index == 50) {
 		temp_Node = this->new_node(element);
 		tail->next = temp_Node;
 		tail = temp_Node;
 	}
-	else {
-		tail->tail_index++;
-	}
 	
-	tail->array[tail->tail_index] = element;
+	tail->tail_index++;
+	
+	tail->array[tail->tail_index-1] = element;
 	std::cout<<"Pushed to back!"<<std::endl;
 }
 
@@ -111,152 +236,296 @@ template <typename E>
 void CDAL<E>::push_front(E element) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
+	//if list empty need new node
 	if (temp_Node == nullptr) {
 		temp_Node = this->new_node(element);
 	} 
-	else if (temp_Node->head_index < 0) {
-		head->array[head->head_index] = element;
+	//if current node array is full, make new Node at tail
+	//save last value and make it first value of new node
+	if (temp_Node->tail_index == 50) {
+		if (tail->tail_index == 50) {
 		temp_Node = this->new_node(element);
-		temp_Node->next = head;
-		temp_Node->head_index = 49;
-		temp_Node->tail_index = 49;
-		head = temp_Node;
+		tail->next = temp_Node;
+		tail = temp_Node;
+		}
+		
+		//while a node exists
+		//save last value of current node
+		//shift everything up 
+		//push element to front
+		//new element to push to front for next node = saved last value
+		temp_Node = head;
+		while (temp_Node) {
+			
+			E temp = temp_Node->array[49];
+		
+			for (int i = 50;  i > 0; i--) {
+				temp_Node->array[i] = temp_Node->array[i - 1];
+			}
+			temp_Node->array[0] = element;
+			element = temp;
+			temp_Node = temp_Node->next;
+		}
+		temp_Node->tail_index++;
 	}
 	else {
-		head->head_index--;
-		head->array[head->head_index] = element;
+		//otherwise there is space in head node
+		//just push front like a normal array
+		for (int i = 50;  i > 0; i--) {
+			temp_Node->array[i] = temp_Node->array[i - 1];
+		}
+		temp_Node->array[0] = element;
+		temp_Node->tail_index++;
 	}
-	
 	std::cout<<"Pushed to front!"<<std::endl;
 }
 
-//TODO FIGURE OUT A SOLUTION FOR THIS 
-//i don't want to have to manually move everything up but I just might
-
 //---insert()
-//check if pos will be invalid
 template <typename E>
 void CDAL<E>::insert(E element, int pos) {
-	/*
+	//check if pos will be invalid
+	size_t length = this->length();
+	if (pos > length-1 || pos < 0) {
+		std::cout<<"Invalid Position"<<std::endl;
+		return;
+	}
+	//calculate how many nodes we have to traverse to get to pos
+	int node_number = pos/50;
+	//mod for local pos 
+	int local_pos = pos % 50;
 	class Node<E> *temp_Node;
 	temp_Node = head;
-	if (head == 0) {
-		std::cout<<"List is empty!"<<std::endl;
-		return;
+	//navigate to correct node for indicated pos
+	for (int i = 0; i < node_number; i++) {
+		temp_Node = temp_Node->next;
 	}
-	size_t size = this->length();
-	if (pos >size) {
-		std::cout<<"Position invalid"<<std::endl;
-		return;
+	//if no node there, allocate new
+	if (temp_Node == nullptr) {
+		temp_Node = this->new_node(element);
 	}
-	std::cout<<"Inserted!"<<std::endl;
-	*/
+	
+	if (temp_Node->tail_index == 50) {
+		//if all nodes are full when we insert, we'll need a new node
+		if (tail->tail_index == 50) {
+		temp_Node = this->new_node(element);
+		tail->next = temp_Node;
+		tail = temp_Node;
+		}
+		
+		//insert at correct node
+		E temp = temp_Node->array[49];
+		
+		for (int i = 50;  i > local_pos; i--) {
+			temp_Node->array[i] = temp_Node->array[i - 1];
+		}
+		temp_Node->array[local_pos] = element;
+		element = temp;
+		temp_Node = temp_Node->next;
+			
+		//push up and fix rest of nodes
+		while (temp_Node) {
+			temp = temp_Node->array[49];
+		
+			for (int i = 50;  i > 0; i--) {
+				temp_Node->array[i] = temp_Node->array[i - 1];
+			}
+			temp_Node->array[0] = element;
+			element = temp;
+			temp_Node = temp_Node->next;
+		}
+		temp_Node->tail_index++;
+	}
+	else {
+		//process similar to pushing front but at certain pos 
+		for (int i = 50; i > local_pos; i--) {
+			temp_Node->array[i] = temp_Node->array[i - 1];
+		}
+		temp_Node->array[local_pos] = element;
+		temp_Node->tail_index++;
+	}
+	
+	std::cout<<"inserted!"<<std::endl;
 }
 
 
 //---replace()
 template <typename E>
 void CDAL<E>::replace(E element, int pos) {
-	class Node<E> *temp;
-	temp = head;
-	if (head == 0) {
+	class Node<E> *temp_Node;
+	temp_Node = head;
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
-	size_t size = this->length();
-	if (pos > size || pos <= 0) {
-		std::cout<<"Position Invalid"<<std::endl;
+	//check if pos will be invalid
+	size_t length = this->length();
+	if (pos > length-1 || pos < 0) {
+		std::cout<<"Invalid Position"<<std::endl;
+		return;
 	}
+	//calculate how many nodes we have to traverse to get to pos
+	int node_number = pos/50;
+	//mod for local pos 
+	int local_pos = pos % 50;
+	//navigate to correct node for indicated pos
+	for (int i = 0; i < node_number; i++) {
+		temp_Node = temp_Node->next;
+	}
+	
+	temp_Node->array[local_pos] = element;
 	
 	std::cout<<"Replaced!"<<std::endl;
 }
 
-//TODO fix this, this is currently just copied from SDAL
 //---remove()
 template <typename E>
 E CDAL<E>::remove(int pos) {
-	/*
-	class Node<E> *temp, *prev;
-	temp = head;
-	if (head == 0) {
+	class Node<E> *temp_Node;
+	temp_Node = head;
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
-	for (int i = 1; i < pos; i++) {
-		prev = temp;
-		temp = temp->next;
+	//check if pos will be invalid
+	size_t length = this->length();
+	if (pos > length-1 || pos < 0) {
+		std::cout<<"Invalid Position"<<std::endl;
+		return 0;
 	}
-	if (temp == head) {
-		head = temp->next;
+	//calculate how many nodes we have to traverse to get to pos
+	int node_number = pos/50;
+	//mod for local pos 
+	int local_pos = pos % 50;
+	//navigate to correct node for indicated pos
+	for (int i = 0; i < node_number; i++) {
+		temp_Node = temp_Node->next;
 	}
-	else if (temp == tail) {
-		tail = prev;
+	
+	//if current node is full and next node exists, we'll have to shift values
+	if (temp_Node->tail_index == 50 && (temp_Node->next)) {
+		E value = temp_Node->array[local_pos];
+		for (int i = local_pos; i < 50; i++) {
+			temp_Node->array[i] = temp_Node->array[i + 1];
+		}
+		while (temp_Node->next) {
+			temp_Node->array[49] = temp_Node->next->array[0];
+			temp_Node = temp_Node->next;
+			for (int i = 0; i < 50; i++) {
+				temp_Node->array[i] = temp_Node->array[i + 1];
+			}
+		}
+		temp_Node->tail_index--;
+		return value;
 	}
-	E value = temp->data;
-	prev->next = temp->next;
-	delete temp;
-	return value;
-	*/
+	else {
+		E value = temp_Node->array[local_pos];
+		for (int i = local_pos; i < 50; i++) {
+			temp_Node->array[i] = temp_Node->array[i + 1];
+		}
+		temp_Node->tail_index--;
+		return value;
+	}
 }
 
 //---pop_back()
 template <typename E>
 E CDAL<E>::pop_back() {
 	E value;
-	if (head == 0 || head->tail_index == -1) {
+	if (head == nullptr || head->tail_index == 0) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
-	value = tail->array[tail->tail_index];
+	value = tail->array[tail->tail_index-1];
 	tail->tail_index--;
+	//have to find new tail if current tail is empty
+	if (head != tail && tail->tail_index == 0) {
+		class Node<E> *temp_Node;
+		temp_Node = head;
+		while (temp_Node->next->next != nullptr) {
+			temp_Node = temp_Node->next;
+		}
+		tail = temp_Node;
+		delete tail->next;
+		tail->next = nullptr;
+	}
 	
 	return value;
 }
+
 //---pop_front()
 template <typename E>
 E CDAL<E>::pop_front() {
 	E value;
 	class Node<E> *temp_Node;
-	if (head == 0 || head->tail_index == -1) {
+	temp_Node = head;
+	
+	if (head == nullptr || head->tail_index == 0) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
-	value = head->array[head->head_index];
-	head->head_index++;
+	value = head->array[0];
+	
+	//if head node is full and next node exists, we'll have to shift values
+	if (temp_Node->tail_index == 50 && (temp_Node->next)) {
+		while (temp_Node->next) {
+			temp_Node->array[49] = temp_Node->next->array[0];
+			temp_Node = temp_Node->next;
+			for (int i = 0; i < 50; i++) {
+				temp_Node->array[i] = temp_Node->array[i + 1];
+			}
+		}
+		temp_Node->tail_index--;
+		return value;
+	}
+	else {
+		//otherwise, head node is only node
+		for (int i = 0; i < 50; i++) {
+			temp_Node->array[i] = temp_Node->array[i + 1];
+		}
+		temp_Node->tail_index--;
+		return value;
+	}
 	
 	return value;
 }
 
-//TODO fix this, currently just copied from SDAL
 //---item_at()
 template <typename E>
 E CDAL<E>::item_at(int pos) {
-	/*
-	class Node<E> *temp, *prev;
-	temp = head;
-	if (head == 0) {
+	class Node<E> *temp_Node;
+	temp_Node = head;
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
-	//handle invalid position
-	for (int i = 1; i < pos; i++) {
-		temp = temp->next;
+	//check if pos will be invalid
+	size_t length = this->length();
+	if (pos > length-1 || pos < 0) {
+		std::cout<<"Invalid Position"<<std::endl;
+		return 0;
 	}
-	E value = temp->data;
-	return value;
-	*/
+	//calculate how many nodes we have to traverse to get to pos
+	int node_number = pos/50;
+	//mod for local pos 
+	int local_pos = pos % 50;
+	//navigate to correct node for indicated pos
+	for (int i = 0; i < node_number; i++) {
+		temp_Node = temp_Node->next;
+	}
+	
+	return temp_Node->array[local_pos];
 }
 
 //---peek_back()
 template <typename E>
 E CDAL<E>::peek_back() {
 	E value;
-	if (tail == 0 || tail->tail_index == -1) {
+	if (tail == nullptr || head->tail_index == 0) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	else {
-	value = tail->array[tail->tail_index];
+	value = tail->array[tail->tail_index-1];
 	return value;
 	}
 }
@@ -265,12 +534,12 @@ E CDAL<E>::peek_back() {
 template <typename E>
 E CDAL<E>::peek_front() {
 	E value;
-	if (head == 0 || head->tail_index == -1) {
+	if (head == nullptr || head->tail_index == 0) {
 		std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	else {
-	value = head->array[head->head_index];
+	value = head->array[0];
 	return value;
 	}
 }
@@ -278,7 +547,7 @@ E CDAL<E>::peek_front() {
 //---is_empty()
 template <typename E>
 bool CDAL<E>::is_empty() {
-	if (head == 0 || head->tail_index == -1) {
+	if (head == nullptr || head->tail_index == 0) {
 		std::cout<<"Empty!"<<std::endl;
 		return true;
 	}
@@ -298,12 +567,12 @@ bool CDAL<E>::is_full() {
 //---length()
 template <typename E>
 size_t CDAL<E>::length() {
-	class Node<E> *temp;
-	temp = head;
+	class Node<E> *temp_Node;
+	temp_Node = head;
 	size_t length = 0;
-	while (temp != 0) {
-		length = length + (temp->tail_index - temp->head_index);
-		temp = temp->next;
+	while (temp_Node != nullptr) {
+		length = length + (temp_Node->tail_index);
+		temp_Node = temp_Node->next;
 	}
 	return length;
 }
@@ -311,54 +580,74 @@ size_t CDAL<E>::length() {
 //---clear()
 template <typename E>
 void CDAL<E>::clear() {
-	if (head == 0) {
+	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 	}
 	else {
-		class Node<E> *temp,*prev;
-		temp = head;
-		while (temp != 0) {
-			prev = temp;
-			temp = temp->next;
-			delete prev;
+		class Node<E> *temp_Node,*prev_Node;
+		temp_Node = head;
+		while (temp_Node != nullptr) {
+			prev_Node = temp_Node;
+			temp_Node = temp_Node->next;
+			delete[] prev_Node->array;
+			delete prev_Node;
 		}
-	head = tail = 0;
+		
+		head = tail = nullptr;
 	}
 }
 
 //---contains()
-//TODO figure out what equals function should be and how the hell it works
 template <typename E>
-bool CDAL<E>::contains(E element) {
+bool CDAL<E>::contains(E element, bool (*equals_function)(E,E)) {
+	class Node<E> *temp_Node;
+	temp_Node = head;
+	if (head == nullptr || temp_Node->tail_index == 0) {
+		std::cout <<"List is empty!"<< std::endl;
+		return false;
+	}
 	
+	while (temp_Node != nullptr) {
+		for (int i = 0; i < temp_Node->tail_index; i++) {
+			if (equals_function(temp_Node->array[i],element)) {
+				std::cout<<element<<" exists in list!"<<std::endl;
+				return true;
+			}
+		}
+		temp_Node=temp_Node->next;
+	}
+	std::cout<<element<<" is not in list!"<<std::endl;
+	return false;
 }
 
 
 //---print()
 template <typename E>
 void CDAL<E>::print(std::ostream& stream) {
-	class Node<E> *temp;
-	temp = head;
-	if (head == 0 || temp->tail_index == -1) {
+	class Node<E> *temp_Node;
+	temp_Node = head;
+	if (head == nullptr || temp_Node->tail_index == 0) {
 		std::cout <<"<empty list>"<< std::endl;
 	}
 	
 	std::cout<<"[ ";
-	while (temp != 0) {
-		for (int i = temp->head_index; i < temp->tail_index; i++) {
-			std::cout<<temp->array[i]<<", ";
+	while (temp_Node != nullptr) {
+		for (int i = 0; i < temp_Node->tail_index; i++) {
+			std::cout<<temp_Node->array[i]<<", ";
 		}
-		temp=temp->next;
+		temp_Node = temp_Node->next;
 	}
 	std::cout<<"]"<<std::endl;
 }
 
 //---contents()
+//TODO FIX THIS, CRASHES CURRENTLY
+//or not? check this out thoroughly 
 template <typename E>
 E* const CDAL<E>::contents() {
-	class Node<E> *temp;
-	temp = head;
-	if (head == 0 || temp->tail_index == -1) {
+	class Node<E> *temp_Node;
+	temp_Node = head;
+	if (head == nullptr || temp_Node->tail_index == 0) {
 		std::cout<<"List is empty!"<<std::endl;
 	}
 	
@@ -366,18 +655,18 @@ E* const CDAL<E>::contents() {
 	E *copy_array = new E[size];
 	int j = 0;
 	
-	while (temp != 0) {
-		for (int i = temp->head_index; i < temp->tail_index; i++) {
-			copy_array[j] = temp->array[i];
+	while (temp_Node != nullptr) {
+		for (int i = 0; i < temp_Node->tail_index; i++) {
+			copy_array[j] = temp_Node->array[i];
 			j++;
 		}
-		temp=temp->next;
+		temp_Node=temp_Node->next;
 	}
 	
 	//print array for testing purposes
 	/*
-	for (i = 0; i < size; i++) {
-		std::cout<<array[i]<<" ";
+	for (int i = 0; i < size; i++) {
+		std::cout<<copy_array[i]<<" ";
 	}
 	*/
 	

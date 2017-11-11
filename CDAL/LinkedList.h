@@ -15,7 +15,6 @@ class LinkedList {
 	public:
 	// LinkedList's methods
 	//what type is pos? should be overriden later by list type?
-	//also apparently = 0 doesn't work for size_t, so those functions have {} instead
 	virtual Node<E> * new_node(E) = 0;
 	virtual void push_back(E element) = 0;
 	virtual void push_front(E element) = 0;
@@ -32,7 +31,7 @@ class LinkedList {
 	virtual size_t length() = 0;
 	virtual void clear() = 0;
 	
-	//virtual bool contains(E element, void (*equals_function)(E)) = 0;
+	virtual bool contains(E element, void (*equals_function)(E,E)) {};
 	virtual void print(std::ostream& stream) = 0;
 	virtual E* const contents() = 0;
 	

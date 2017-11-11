@@ -2,11 +2,25 @@
 #include "CDAL.h"
 using namespace cop3530;
 
+//equals function declared here
+//returns true if both input values are equals
+bool equals_function (int one, int two) {
+	if (one == two) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 int main() {
 	//testing CDAL, int type
 	int choice, input, pos;
 	std::ostream stream(0);
 	CDAL<int> cdal_1;
+	
+	std::cout<<"Be aware, positions start at 0!"<<std::endl;
+	
 	while (true) {
 		std::cout<<"\n---Operations on CDAL---"<<std::endl;
 		std::cout<<"1. Push front"<<std::endl;
@@ -26,7 +40,9 @@ int main() {
 		std::cout<<"15. List contains input?"<<std::endl;
 		std::cout<<"16. Print list"<<std::endl;
 		std::cout<<"17. Return array of contents"<<std::endl;
-		std::cout<<"18. Exit"<<std::endl;
+		std::cout<<"18. Test Iterator (List must have 1+ elements!)"<<std::endl;
+		std::cout<<"19. Test Copy member functions"<<std::endl;
+		std::cout<<"20. Exit"<<std::endl;
         std::cout<<"Enter your choice : ";
         std::cin>>choice;
         switch(choice)
@@ -46,7 +62,7 @@ int main() {
 			std::cin>>input;
 			std::cout<<"Input a position to insert at: "<<std::endl;
 			std::cin>>pos;
-			//cdal_1.insert(input,pos);
+			cdal_1.insert(input,pos);
             break;
         case 4:
             std::cout<<"Input a value to replace: "<<std::endl;
@@ -101,7 +117,7 @@ int main() {
 		case 15:
             std::cout<<"Input a value to check for: "<<std::endl;
 			std::cin>>input;
-			//cdal_1.contains(input);
+			cdal_1.contains(input,equals_function);
             break; 	
 		case 16:
             std::cout<<"Printing list: "<<std::endl;
@@ -112,6 +128,20 @@ int main() {
 			cdal_1.contents();
             break; 
 		case 18:
+			break;
+		case 19: {
+			std::cout<<"Testing copy constructor: "<<std::endl;
+			CDAL<int> cdal_2 = cdal_1;
+			cdal_2.print(stream);
+			std::cout<<"Testing copy assignment: "<<std::endl;
+			CDAL<int> cdal_3;
+			cdal_3.push_back(1337); //throw some value in there to make sure we don't get it back
+			cdal_3.print(stream); //print that to show it is different
+			cdal_3 = cdal_1;
+			cdal_3.print(stream);
+			break;
+		}
+		case 20:
 			std::cout<<"Exiting"<<std::endl;
 			return 0;
         default:
