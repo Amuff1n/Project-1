@@ -311,6 +311,9 @@ void CDAL<E>::push_front(E element) {
 }
 
 //---insert()
+//TODO investing crashing
+//crashes in cpp but not in ubuntu? 
+//MAKE SURE TO CHECK THIS ON CISE SERVERS
 template <typename E>
 void CDAL<E>::insert(E element, int pos) {
 	//check if pos will be invalid

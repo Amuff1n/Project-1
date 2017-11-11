@@ -256,20 +256,19 @@ void SSLL<E>::push_front(E element) {
 
 //---insert()
 //check if pos will be invalid
+//TODO, crashes program if you only insert and never do other ops
+//if you push back or push front after this you lose the list?
+//NOTE: iterator doesn't follow insertions?
 template <typename E>
 void SSLL<E>::insert(E element, int pos) {
 	class Node<E> *temp,*prev, *insert_node;
 	temp = head;
-	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
-		return;
-	}
 	int size = this->length();
-	if (pos > size || pos <= 0) {
+	if (pos > size || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
-	else if (pos == 1) {
+	else if (pos == 0) {
 		temp = head;
 		insert_node = this->new_node(element);
 		head = insert_node;
@@ -277,7 +276,7 @@ void SSLL<E>::insert(E element, int pos) {
 		return;
 	}
 	else {
-		for (int i = 0; i < pos - 1; i++) {
+		for (int i = 0; i < pos; i++) {
 			prev = temp;
 			temp = temp->next;
 		}
@@ -297,11 +296,11 @@ void SSLL<E>::replace(E element, int pos) {
 		return;
 	}
 	int size = this->length();
-	if (pos > size || pos <= 0) {
+	if (pos > size || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
-	for (int i = 0; i < pos - 1; i++) {
+	for (int i = 0; i < pos; i++) {
 		temp = temp->next;
 	}
 	temp->data = element;
@@ -318,18 +317,18 @@ E SSLL<E>::remove(int pos) {
 		return 0;
 	}
 	int size = this->length();
-	if (pos > size || pos <= 0) {
+	if (pos > size || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	//special case is pos = 1
-	if (pos == 1) {
+	if (pos == 0) {
 		head = head->next;
 		E value = temp->data;
 		delete temp;
 		return value;
 	}
-	for (int i = 1; i < pos; i++) {
+	for (int i = 0; i < pos; i++) {
 		prev = temp;
 		temp = temp->next;
 	}
@@ -401,11 +400,11 @@ E SSLL<E>::item_at(int pos) {
 		return 0;
 	}
 	int size = this->length();
-	if (pos > size || pos <= 0) {
+	if (pos > size || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
-	for (int i = 1; i < pos; i++) {
+	for (int i = 0; i < pos; i++) {
 		temp = temp->next;
 	}
 	E value = temp->data;

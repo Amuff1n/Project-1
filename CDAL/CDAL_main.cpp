@@ -123,10 +123,12 @@ int main() {
             std::cout<<"Printing list: "<<std::endl;
 			cdal_1.print(stream);
             break; 	
-		case 17:
+		case 17: {
             std::cout<<"Copying list to array and returning: "<<std::endl;
-			cdal_1.contents();
+			int * output = cdal_1.contents();
+			delete[] output;
             break; 
+		}
 		case 18:{
 			std::cout<<"Testing Iterator by printing out contents of list: "<<std::endl;
 			CDAL<int>::iterator iter = cdal_1.begin();
