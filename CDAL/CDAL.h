@@ -55,7 +55,7 @@ class CDAL : public LinkedList<E> {
 	Node<E> * tail = nullptr;
 	
 	public:
-	//TODO ITERATOR STUFF
+	//Iterator currently works for at least one node
 	
 	template <typename DataT>
 	class CDAL_Iter {
@@ -74,32 +74,38 @@ class CDAL : public LinkedList<E> {
 		
 		private:
 		Node<E> * here;
+		DataT * iter_array;
 		
 		public:
 		//constructor
-		explicit CDAL_Iter(Node<E> * start = nullptr) : here(start) {}
+		explicit CDAL_Iter(Node<E> * start = nullptr, DataT * array = nullptr) : here(start), iter_array(array) {}
 		
 		//operations
 		reference operator*() const {
-			return here->data;
+			return *iter_array;
 		}
 		pointer operator->() const {
 			return &(operator*());
 		}
 		
 		//copy and assignment
-		CDAL_Iter( const CDAL_Iter& src) : here (src.here) {}
+		CDAL_Iter( const CDAL_Iter& src) : here (src.here), iter_array(src.iter_array) {}
 		self_reference operator = ( CDAL_Iter<DataT> const& src) {
 			if (this == &src) {
 				return (*this);
 			}
 			here = src.here;
+			iter_array = src.iter_array;
 			return *this;
 		}
 		//preincrement
 		self_reference operator++() {
 			if (here) {
-				here = here->next;
+				if (here->tail_index == 50) {
+					here = here->next;
+					iter_array = here->array;
+				}
+				++iter_array;
 			}
 			return *this;
 		} 
@@ -111,12 +117,36 @@ class CDAL : public LinkedList<E> {
 		} 
 		
 		bool operator == ( CDAL_Iter<DataT> const& rhs) const {
-			return (here == rhs.here);
+			return (here == rhs.here && iter_array = rhs.iter_array);
 		}
 		bool operator != ( CDAL_Iter<DataT> const& rhs) const {
-			return (here != rhs.here);
+			return (here != rhs.here || iter_array != rhs.iter_array);
 		}
 	};
+	
+	public: 
+	//iter type aliases after iter code
+	using iterator = CDAL_Iter<E>;
+	using const_iterator = CDAL_Iter<E const>;
+	
+	//methods to create iters
+	iterator begin() {
+		iterator i(head, head->array);
+		return i;
+	}
+	iterator end() { 
+		iterator i(tail, tail->array+50);
+		return i;
+	}
+	
+	const_iterator begin() const {
+		const_iterator i(head, head->array);
+		return i;
+	}
+	const_iterator end() const {
+		const_iterator i(tail, tail->array+50);
+		return i;
+	}
 };
 
 //---constructors and destructors

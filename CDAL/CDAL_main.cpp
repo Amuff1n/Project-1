@@ -127,8 +127,18 @@ int main() {
             std::cout<<"Copying list to array and returning: "<<std::endl;
 			cdal_1.contents();
             break; 
-		case 18:
+		case 18:{
+			std::cout<<"Testing Iterator by printing out contents of list: "<<std::endl;
+			CDAL<int>::iterator iter = cdal_1.begin();
+			CDAL<int>::iterator end = cdal_1.end();
+			std::cout<<"iterators created successfully"<<std::endl;
+			std::cout<<"[ ";
+			for ( ; iter != end; ++iter) {
+				std::cout<<*iter<< ", ";
+			}
+			std::cout<<"]"<<std::endl;
 			break;
+		}
 		case 19: {
 			std::cout<<"Testing copy constructor: "<<std::endl;
 			CDAL<int> cdal_2 = cdal_1;
