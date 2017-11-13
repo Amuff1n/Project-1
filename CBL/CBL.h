@@ -1,27 +1,30 @@
-//Simple Dynamic Array-based List
-//implements the Linked List using backing array
+//Circular Buffer list
+//implements the Linked List using a circular backing array
+
+//currently performance is down because of calling length function in most operations
+//this is because Dave doesn't want use saving length as a variable
 
 //maybe change all the ints to size_t later?
 
 //TODO Iterator breaks when new array allocated, wait maybe not?
 // do more testing dingus
 
-#ifndef _SDAL_H_
-#define _SDAL_H_
+#ifndef _CBL_H_
+#define _CBL_H_
 #include <stdexcept>
 #include "LinkedList.h"
 
 namespace cop3530 {
 
 template <typename E>
-class SDAL : public LinkedList<E> {
+class CBL : public LinkedList<E> {
 	public:
-	SDAL(size_t size);
-	~SDAL() override;
-	SDAL(const SDAL& other); //copy constructor
-	SDAL<E>& operator= (const SDAL& other); //copy-assignment operator
-	SDAL(SDAL&& other); //move constructor
-	SDAL<E>& operator= (SDAL&& other); //move-assignment operator
+	CBL(size_t size);
+	~CBL() override;
+	CBL(const CBL& other); //copy constructor
+	CBL<E>& operator= (const CBL& other); //copy-assignment operator
+	CBL(CBL&& other); //move constructor
+	CBL<E>& operator= (CBL&& other); //move-assignment operator
 	
 	Node<E> * new_node(E element) override;
 	void push_back(E element) override;
@@ -56,13 +59,14 @@ class SDAL : public LinkedList<E> {
 	size_t init_size; //original user specified size, used for array allocation
 	//in this implementation, tail is an index
 	//head pointer will always be array[0]
+	size_t head = 0;
 	size_t tail = 0;
 	
 	public:
 	//iterator stuff
 	//iterator points to one past array size, so last 'value' will be garbage data
 	template <typename DataT>
-	class SDAL_Iter {
+	class CBL_Iter {
 		public:
 		//type aliases required for C++ iterator compatibility
 		//using size_t = std::size_t;
@@ -73,8 +77,8 @@ class SDAL : public LinkedList<E> {
 		using iterator_category = std::forward_iterator_tag;
 		
 		//type aliases for prettier(!) code
-		using self_type = SDAL_Iter;
-		using self_reference = SDAL_Iter&;
+		using self_type = CBL_Iter;
+		using self_reference = CBL_Iter&;
 		
 		private:
 		//is the iterator going to have to have its own array?
@@ -82,7 +86,7 @@ class SDAL : public LinkedList<E> {
 		
 		public:
 		//constructor
-		explicit SDAL_Iter(DataT * array = nullptr) : iter_array(array) {}
+		explicit CBL_Iter(DataT * array = nullptr) : iter_array(array) {}
 		
 		//operations
 		reference operator*() const {
@@ -93,8 +97,8 @@ class SDAL : public LinkedList<E> {
 		}
 		
 		//copy and assignment
-		SDAL_Iter( const SDAL_Iter& src) : iter_array(src.iter_array) {}
-		self_reference operator = ( SDAL_Iter<DataT> const& src) {
+		CBL_Iter( const CBL_Iter& src) : iter_array(src.iter_array) {}
+		self_reference operator = ( CBL_Iter<DataT> const& src) {
 			if (this == &src) {
 				return (*this);
 			}
@@ -113,18 +117,18 @@ class SDAL : public LinkedList<E> {
 			return tmp;
 		} 
 		
-		bool operator == ( SDAL_Iter<DataT> const& rhs) const {
+		bool operator == ( CBL_Iter<DataT> const& rhs) const {
 			return (iter_array == rhs.iter_array);
 		}
-		bool operator != ( SDAL_Iter<DataT> const& rhs) const {
+		bool operator != ( CBL_Iter<DataT> const& rhs) const {
 			return (iter_array != rhs.iter_array);
 		}
 	}; //end of iter
 	
 	public: 
 	//iter type aliases after iter code
-	using iterator = SDAL_Iter<E>;
-	using const_iterator = SDAL_Iter<E const>;
+	using iterator = CBL_Iter<E>;
+	using const_iterator = CBL_Iter<E const>;
 	
 	//methods to create iters
 	//iterator end currently points to 1 past array_size
@@ -151,10 +155,11 @@ class SDAL : public LinkedList<E> {
 
 //---constructors and destructors
 template <typename E>
-SDAL<E>::SDAL(size_t size) {
+CBL<E>::CBL(size_t size) {
 	//set private size variable
 	//init array of that size
 	//default to 50 if none given
+	//need to add 1 slot to size to make it circular 
 	if (size == 0) {
 		array = new E[50];
 		array_size = 50;
@@ -163,18 +168,18 @@ SDAL<E>::SDAL(size_t size) {
 	else {
 		array = new E[size];
 		array_size = size;
-		init_size = 50;
+		init_size = size;
 	}
 }
 
 template <typename E>
-SDAL<E>::~SDAL() {
+CBL<E>::~CBL() {
 	delete[] array;
 }
 
 //---copy constructor
 template <typename E>
-SDAL<E>::SDAL(const SDAL& other) {
+CBL<E>::CBL(const CBL& other) {
 	//get array size of other
 	//set self array to that size and copy values
 	array_size = other.array_size;
@@ -183,12 +188,13 @@ SDAL<E>::SDAL(const SDAL& other) {
 		array[i] = other.array[i];
 	}
 	tail = other.tail;
+	head = other.head;
 }
 
 //---copy-assignment
 //may have exception problems if other throws exceptions
 template <typename E>
-SDAL<E>& SDAL<E>::operator=(const SDAL& other) {
+CBL<E>& CBL<E>::operator=(const CBL& other) {
 	//make sure we aren't referencing ourself
 	//clear current array, set default values, then copy
 	if (this != &other) {
@@ -206,7 +212,7 @@ SDAL<E>& SDAL<E>::operator=(const SDAL& other) {
 
 //---move constructor
 template <typename E>
-SDAL<E>::SDAL(SDAL&& other) {
+CBL<E>::CBL(CBL&& other) {
 		array = other.array;
 		array_size = other.array_size;
 		tail = other.tail;
@@ -215,34 +221,38 @@ SDAL<E>::SDAL(SDAL&& other) {
 		delete[] other.array;
 		other.array_size = 0;
 		other.tail = 0;
+		other.head = 0;
 }
 
 //---move-assignment
 template <typename E>
-SDAL<E>& SDAL<E>::operator=(SDAL&& other) {
+CBL<E>& CBL<E>::operator=(CBL&& other) {
 	//make sure we aren't referencing ourself
 	if (this != &other) {
 		//free and default ourself;
 		delete array;
 		array_size = 0;
 		tail = 0;
+		head = 0;
 		
 		array = other.array;
 		array_size = other.array_size;
 		tail = other.tail;
+		head = other.head;
 	
 		//set others values to default
 		delete[] other.array;
 		other.array_size = 0;
 		other.tail = 0;
+		other.head = 0;
 	}
 	return *this;
 }
 
 //---new_node()
-//does nothing for SDAL, just there because of inheritance, leftover from Linkedlist.h
+//does nothing for CBL, just there because of inheritance, leftover from Linkedlist.h
 template <typename E>
-Node<E> * SDAL<E>::new_node(E element) {
+Node<E> * CBL<E>::new_node(E element) {
 	class Node<E> *temp_Node;
 	temp_Node = new Node<E>;
 	return temp_Node;
@@ -250,12 +260,18 @@ Node<E> * SDAL<E>::new_node(E element) {
 
 //---push_back()
 template <typename E>
-void SDAL<E>::push_back(E element) {
+void CBL<E>::push_back(E element) {
 	//check for errors
-	if (tail >= array_size) {
+	size_t length = this->length();
+	if (length == array_size - 1) {
 		this->allocate_new();
 	}
+	
 	tail++;
+	//if we hit end of array, we need to wrap around
+	if (tail > array_size) {
+		tail = 0;
+	}
 	array[tail-1] = element;
 	
 	std::cout<<"Pushed to back!"<<std::endl;
@@ -263,25 +279,37 @@ void SDAL<E>::push_back(E element) {
 
 //---push_front()
 template <typename E>
-void SDAL<E>::push_front(E element) {
+void CBL<E>::push_front(E element) {
 	//check for errors
-	if (tail >= array_size) {
+	size_t length = this->length();
+	if (length == array_size - 1) {
 		this->allocate_new();
 	}
-	size_t size = this->length();
-	for (int i = size;  i > 0; i--) {
-		array[i] = array[i - 1];
+	
+	//if list is empty, push to head but don't change head index yet
+	if (head == 0 && tail == 0){
+		array[head] = element;
+		tail++;
 	}
-	tail++;
-	array[0] = element;
+	//wrap around if pushing front goes past beginning of array
+	else if (head == 0) {
+		head = array_size - 1;
+		array[head] = element;
+	}
+	//otherwise handle normally
+	else {
+		head--;
+		array[head] = element;
+	}
 	std::cout<<"Pushed to front!"<<std::endl;
 }
 
 //---insert()
 template <typename E>
-void SDAL<E>::insert(E element, int pos) {
+void CBL<E>::insert(E element, int pos) {
 	//check if invalid index
-	if (pos > tail-1 || pos < 0) {
+	size_t length = this->length();
+	if (pos > length || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
@@ -290,8 +318,8 @@ void SDAL<E>::insert(E element, int pos) {
 		this->allocate_new();
 	}
 	
-	size_t size = this->length();
-	for (int i = size; i > pos; i--) {
+	
+	for (int i = length; i > pos; i--) {
 		array[i] = array[i - 1];
 	}
 	tail++;
@@ -301,9 +329,10 @@ void SDAL<E>::insert(E element, int pos) {
 
 //---replace()
 template <typename E>
-void SDAL<E>::replace(E element, int pos) {
+void CBL<E>::replace(E element, int pos) {
 	//check if invalid index
-	if (pos > tail-1 || pos < 0) {
+	size_t length = this->length();
+	if (pos > length || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
@@ -314,14 +343,15 @@ void SDAL<E>::replace(E element, int pos) {
 
 //---remove()
 template <typename E>
-E SDAL<E>::remove(int pos) {
+E CBL<E>::remove(int pos) {
 	//check if invalid index 
-	if (pos > tail-1 || pos < 0) {
+	size_t length = this->length();
+	if (pos > length || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	
-	if (array_size >= (init_size * 2) && tail < array_size/2) {
+	if (array_size >= (init_size * 2) && length < array_size/2) {
 		this->allocate_new();
 	}
 	
@@ -336,8 +366,9 @@ E SDAL<E>::remove(int pos) {
 
 //---pop_back()
 template <typename E>
-E SDAL<E>::pop_back() {
-	if (array_size >= (init_size * 2) && tail < array_size/2) {
+E CBL<E>::pop_back() {
+	size_t length = this->length();
+	if (array_size >= (init_size * 2) && length < array_size/2) {
 		this->allocate_new();
 	}
 	
@@ -349,13 +380,14 @@ E SDAL<E>::pop_back() {
 
 //---pop_front()
 template <typename E>
-E SDAL<E>::pop_front() {
-	if (array_size >= (init_size * 2) && tail < array_size/2) {
+E CBL<E>::pop_front() {
+	size_t length = this->length();
+	if (array_size >= (init_size * 2) && length < array_size/2) {
 		this->allocate_new();
 	}
 	
 	size_t size = this->length();
-	E value = array[0];
+	E value = array[head];
 	for (int i = 0; i < size; i++) {
 		array[i] = array[i + 1];
 	}
@@ -365,9 +397,10 @@ E SDAL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E SDAL<E>::item_at(int pos) {
+E CBL<E>::item_at(int pos) {
 	//check if invalid index 
-	if (pos > tail-1 || pos < 0) {
+	size_t length = this->length();
+	if (pos > length || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
@@ -378,22 +411,22 @@ E SDAL<E>::item_at(int pos) {
 
 //---peek_back()
 template <typename E>
-E SDAL<E>::peek_back() {
+E CBL<E>::peek_back() {
 	E value = array[tail-1];
 	return value;
 }
 
 //---peek_front()
 template <typename E>
-E SDAL<E>::peek_front() {
-	E value = array[0];
+E CBL<E>::peek_front() {
+	E value = array[head];
 	return value;
 }
 
 //---is_empty()
 template <typename E>
-bool SDAL<E>::is_empty() {
-	if (array[0] == 0 && tail == 0) {
+bool CBL<E>::is_empty() {
+	if (head == tail) {
 		std::cout<<"Empty!"<<std::endl;
 		return true;
 	}
@@ -405,9 +438,9 @@ bool SDAL<E>::is_empty() {
 
 //---is_full()
 template <typename E>
-bool SDAL<E>::is_full() {
-	size_t size = this->length();
-	if (size == array_size) {
+bool CBL<E>::is_full() {
+	size_t length = this->length();
+	if (length == array_size) {
 		std::cout<<"Array is full!"<<std::endl;
 		return true;
 	}
@@ -419,8 +452,16 @@ bool SDAL<E>::is_full() {
 
 //---length()
 template <typename E>
-size_t SDAL<E>::length() {
-	size_t length = tail;
+size_t CBL<E>::length() {
+	size_t length = 0;
+	//if head before tail, like a normal array
+	if (head <= tail) {
+		length = tail - head;
+	}
+	//if head after tail, there is wrap around, i.e. it is circular
+	else {
+		length = tail + (array_size - head);
+	}
 	return length;
 }
 
@@ -428,20 +469,22 @@ size_t SDAL<E>::length() {
 //just defaults all values in array to 0, doesn't delete array
 //sets head and tail indices
 template <typename E>
-void SDAL<E>::clear() {
+void CBL<E>::clear() {
 	for (int i = 0; i < array_size; i++){
 			array[i] = 0;
 	}
+	head = 0;
 	tail = 0;
 }
 
 //---contains()
 template <typename E>
-bool SDAL<E>::contains(E element, bool (*equals_function)(E,E)) {
-	if (tail == 0) {
+bool CBL<E>::contains(E element, bool (*equals_function)(E,E)) {
+	if (tail == head) {
 		std::cout<<"List is empty!"<<std::endl;
 		return false;
 	}
+	
 	for (int i = 0; i <= tail; i++) {
 		if (equals_function(element,array[i])) {
 			std::cout<<element<<" exists in list!"<<std::endl;
@@ -455,22 +498,37 @@ bool SDAL<E>::contains(E element, bool (*equals_function)(E,E)) {
 
 //---print()
 template <typename E>
-void SDAL<E>::print(std::ostream& stream) {
-	if (tail == 0) {
+void CBL<E>::print(std::ostream& stream) {
+	
+	if (tail == head) {
 		std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
+	
 	std::cout<<"[ ";
-	for (int i = 0; i < tail; i++) {
-		std::cout<<array[i]<<", ";
+	//if head before tail, like a normal array
+	if (head <= tail) {
+		for (int i = head; i < tail; i++) {
+			std::cout<<array[i]<<", ";
+		}
+	}
+	//if head after tail, there is wrap around, i.e. it is circular
+	else {
+		
+		for (int i = head; i < array_size; i++) {
+			std::cout<<array[i]<<", ";
+		}
+			
+		for (int i = 0; i < tail; i++) {
+			std::cout<<array[i]<<", ";
+		}
 	}
 	std::cout<<"]"<<std::endl;
-	std::cout<<"array_size: "<<array_size<<std::endl;
 }
 
 //---contents()
 template <typename E>
-E* const SDAL<E>::contents() {
+E* const CBL<E>::contents() {
 	E * copied_Array = new E[tail];
 	for (int i = 0; i < tail; i++) {
 		copied_Array[i] = array[i];
@@ -487,18 +545,39 @@ E* const SDAL<E>::contents() {
 }
 
 //---allocate_new()
-//allocate new array with new size
 template <typename E>
-void SDAL<E>::allocate_new() {
-	if (array_size >= (init_size * 2) && tail < array_size/2) {
+void CBL<E>::allocate_new() {
+	std::cout<<"allocating new array"<<std::endl;
+	size_t length = this->length();
+	if (array_size >= (init_size * 2) && length < array_size/2) {
 		//allocate new array 75% size of original
 		//copy items over
 		//deallocate original one
+		size_t orig_array_size = array_size;
 		array_size = array_size * 0.75;
 		E * temp = new E[array_size];
-		for (int i = 0; i < tail; i++) {
-			temp[i] = array[i];
+		
+		//if head before tail, like a normal array
+		if (head <= tail) {
+			for (int i = head; i < tail; i++) {
+				temp[i] = array[i];
+			}
 		}
+		//if head after tail, there is wrap around, i.e. it is circular
+		else {
+			
+			size_t head_dist = orig_array_size - head;
+			for (int i = 1; i <= head_dist; i++) {
+				temp[array_size - i] = array[orig_array_size - i];
+			}
+			
+			head = array_size - head_dist;
+			
+			for (int i = 0; i < tail; i++) {
+				temp[i] = array[i];
+			}
+		}
+		
 		delete[] array;
 		array = temp;
 	}
@@ -506,14 +585,35 @@ void SDAL<E>::allocate_new() {
 		//allocate new array 150% size of original
 		//copy items over
 		//deallocate original one
+		size_t orig_array_size = array_size;
 		array_size = array_size * 1.5; 
 		E * temp = new E[array_size];
-		for (int i = 0; i < tail; i++) {
-			temp[i] = array[i];
+		
+		//if head before tail, like a normal array
+		if (head <= tail) {
+			for (int i = head; i < tail; i++) {
+				temp[i] = array[i];
+			}
 		}
+		//if head after tail, there is wrap around, i.e. it is circular
+		else {
+			
+			size_t head_dist = orig_array_size - head;
+			for (int i = 1; i <= head_dist; i++) {
+				temp[array_size - i] = array[orig_array_size - i];
+			}
+			
+			head = array_size - head_dist;
+			
+			for (int i = 0; i < tail; i++) {
+				temp[i] = array[i];
+			}
+		}
+		
 		delete[] array;
 		array = temp;
 	}
+	std::cout<<"new array size: "<<array_size<<std::endl;
 }
 
 }
