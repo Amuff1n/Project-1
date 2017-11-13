@@ -278,7 +278,7 @@ void CBL<E>::push_back(E element) {
 	tail++;
 	//if we hit end of array, we need to wrap around
 	if (tail > array_size) {
-		tail = 0;
+		tail = 1;
 	}
 	array[tail-1] = element;
 	
@@ -318,6 +318,11 @@ void CBL<E>::insert(E element, int pos) {
 	//check if invalid index
 	size_t length = this->length();
 	
+	//if list is empty, handle special case;
+	if (length == 0) {
+		this->push_back(element);
+		return;
+	}
 	if (pos > length || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
@@ -327,12 +332,52 @@ void CBL<E>::insert(E element, int pos) {
 		this->allocate_new();
 	}
 	
-	
-	for (int i = length; i > pos; i--) {
-		array[i] = array[i - 1];
+	//like a normal array
+	if (head <= tail) {
+		int i = 0;
+		//save last element if we need to wrap around
+		E temp = array[tail-1];
+		//shift everything up 1
+		for (i = tail; i > pos + head; i--) {
+			array[i] = array[i - 1];
+		}
+		tail++;
+		array[i] = element;
+		
+		//wrap around if needed
+		if (tail > array_size) {
+			tail = 1;
+			array[tail-1] = element;
+		}
 	}
-	tail++;
-	array[pos] = element;
+	//otherwise head > tail and it is circular
+	else {
+		int i = 0;
+		E temp = array[array_size - 1];
+		//if pos is on head side of circular array, we'll need wrap around when we shift up
+		if (pos < array_size - head) {
+			for (i = array_size; i > pos + head; i--) {
+				array[i] = array[i - 1];
+			}
+			array[i] = element;
+			
+			for (i = tail; i > 0; i--) {
+				array[i] = array[i-1];
+			}
+			array[0] = temp;
+			tail++;
+		}
+		//otherwise we only need to shift up at tail end
+		else {
+		//shift everything up at tail end
+			size_t local_pos = pos - (array_size - head);
+			for (i = tail; i > local_pos; i--) {
+				array[i] = array[i-1];
+			}
+			array[i] = element;
+			tail++;
+		}
+	}
 	std::cout<<"Inserted!"<<std::endl;
 }
 
@@ -346,7 +391,20 @@ void CBL<E>::replace(E element, int pos) {
 		return;
 	}
 	
-	array[pos] = element;
+	//normal array, no wrap around
+	if (head <= tail) {
+		array[head + pos] = element;
+	}
+	//otherwise wrap around
+	else {
+		if (pos < array_size - head) {
+			array[head + pos] = element;
+		}
+		else {
+			size_t local_pos = pos - (array_size - head);
+			array[local_pos] = element;
+		}	
+	}
 	std::cout<<"Replaced!"<<std::endl;
 }
 
@@ -432,12 +490,27 @@ E CBL<E>::item_at(int pos) {
 		return 0;
 	}
 	
-	if (pos > length || pos < 0) {
+	if (pos >= length || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	
-	E value = array[pos];
+	E value;
+	
+	//normal array, no wrap around
+	if (head <= tail) {
+		value = array[head + pos];
+	}
+	//otherwise wrap around
+	else {
+		if (pos < array_size - head) {
+			value = array[head + pos];
+		}
+		else {
+			size_t local_pos = pos - (array_size - head);
+			value = array[local_pos];
+		}	
+	}
 	return value;
 }
 
