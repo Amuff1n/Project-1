@@ -182,6 +182,7 @@ template <typename E>
 CBL<E>::CBL(const CBL& other) {
 	//get array size of other
 	//set self array to that size and copy values
+	init_size = other.init_size;
 	array_size = other.array_size;
 	array = new E[array_size];
 	for (int i = 0; i < array_size; i++) {
@@ -200,12 +201,18 @@ CBL<E>& CBL<E>::operator=(const CBL& other) {
 	if (this != &other) {
 		delete[] array;
 		tail = 0;
+		head = 0;
+		array_size = 0;
+		init_size = 0;
+		
+		init_size = other.init_size;
 		array_size = other.array_size;
 		array = new E[array_size];
 		for (int i = 0; i < array_size; i++) {
 			array[i] = other.array[i];
 		}
 		tail = other.tail;
+		head = other.head;
 	}
 	return *this;
 }
@@ -216,6 +223,7 @@ CBL<E>::CBL(CBL&& other) {
 		array = other.array;
 		array_size = other.array_size;
 		tail = other.tail;
+		head = other.head;
 	
 		//set others values to default
 		delete[] other.array;
@@ -309,12 +317,13 @@ template <typename E>
 void CBL<E>::insert(E element, int pos) {
 	//check if invalid index
 	size_t length = this->length();
+	
 	if (pos > length || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	
-	if (tail >= array_size) {
+	if (length == array_size - 1) {
 		this->allocate_new();
 	}
 	
@@ -368,12 +377,22 @@ E CBL<E>::remove(int pos) {
 template <typename E>
 E CBL<E>::pop_back() {
 	size_t length = this->length();
+	
+	if (length == 0) {
+		std::cout<<"List is empty!"<<std::endl;
+		return 0;
+	}
+	
 	if (array_size >= (init_size * 2) && length < array_size/2) {
 		this->allocate_new();
 	}
 	
-	E value;
-	value = array[tail-1];
+	//wrap around if tail goes past beginning of list
+	if (tail < 0) {
+		tail = array_size;
+	}
+	
+	E value = array[tail-1];
 	tail--;
 	return value;
 }
@@ -382,16 +401,23 @@ E CBL<E>::pop_back() {
 template <typename E>
 E CBL<E>::pop_front() {
 	size_t length = this->length();
+	
+	if (length == 0) {
+		std::cout<<"List is empty!"<<std::endl;
+		return 0;
+	}
+	
 	if (array_size >= (init_size * 2) && length < array_size/2) {
 		this->allocate_new();
 	}
 	
-	size_t size = this->length();
-	E value = array[head];
-	for (int i = 0; i < size; i++) {
-		array[i] = array[i + 1];
+	//wrap around if we go past array size
+	if (head >= array_size) {
+		head = 0;
 	}
-	tail--;
+	
+	E value = array[head];
+	head++;
 	return value;
 }
 
@@ -400,6 +426,12 @@ template <typename E>
 E CBL<E>::item_at(int pos) {
 	//check if invalid index 
 	size_t length = this->length();
+	
+	if (length == 0) {
+		std::cout<<"List is empty!"<<std::endl;
+		return 0;
+	}
+	
 	if (pos > length || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
@@ -412,6 +444,11 @@ E CBL<E>::item_at(int pos) {
 //---peek_back()
 template <typename E>
 E CBL<E>::peek_back() {
+	if (head == tail) {
+		std::cout<<"List is empty!"<<std::endl;
+		return 0;
+	}
+	
 	E value = array[tail-1];
 	return value;
 }
@@ -419,6 +456,11 @@ E CBL<E>::peek_back() {
 //---peek_front()
 template <typename E>
 E CBL<E>::peek_front() {
+	if (head == tail) {
+		std::cout<<"List is empty!"<<std::endl;
+		return 0;
+	}
+	
 	E value = array[head];
 	return value;
 }
@@ -485,12 +527,33 @@ bool CBL<E>::contains(E element, bool (*equals_function)(E,E)) {
 		return false;
 	}
 	
-	for (int i = 0; i <= tail; i++) {
-		if (equals_function(element,array[i])) {
-			std::cout<<element<<" exists in list!"<<std::endl;
-			return true;
+	//if head before tail, like a normal array
+	if (head <= tail) {
+		for (int i = head; i < tail; i++) {
+			if (equals_function(element,array[i])) {
+				std::cout<<element<<" exists in list!"<<std::endl;
+				return true;
+			}
 		}
 	}
+	//if head after tail, there is wrap around, i.e. it is circular
+	else {
+		
+		for (int i = head; i < array_size; i++) {
+			if (equals_function(element,array[i])) {
+				std::cout<<element<<" exists in list!"<<std::endl;
+				return true;
+			}
+		}
+			
+		for (int i = 0; i < tail; i++) {
+			if (equals_function(element,array[i])) {
+				std::cout<<element<<" exists in list!"<<std::endl;
+				return true;
+			}
+		}
+	}
+	
 	std::cout<<element<<" is not in list!"<<std::endl;
 	return false;
 }
@@ -529,15 +592,33 @@ void CBL<E>::print(std::ostream& stream) {
 //---contents()
 template <typename E>
 E* const CBL<E>::contents() {
-	E * copied_Array = new E[tail];
-	for (int i = 0; i < tail; i++) {
-		copied_Array[i] = array[i];
+	size_t length = this->length();
+	E * copied_Array = new E[length];
+	
+	//if head before tail, like a normal array
+	if (head <= tail) {
+		for (int i = head; i < tail; i++) {
+			copied_Array[i] = array[i];
+		}
+	}
+	//if head after tail, there is wrap around, i.e. it is circular
+	else {
+		size_t j = 0;
+		for (int i = head; i < array_size; i++) {
+			copied_Array[j] = array[i];
+			j++;
+		}
+			
+		for (int i = 0; i < tail; i++) {
+			copied_Array[j] = array[i];
+			j++;
+		}
 	}
 	
 	//print array for testing purposes
 	/*
-	for (i = 0; i < size; i++) {
-		std::cout<<array[i]<<" ";
+	for (int i = 0; i < length; i++) {
+		std::cout<<copied_Array[i]<<" ";
 	}
 	*/
 	

@@ -6,6 +6,8 @@
 //TODO Iterator breaks when new array allocated, wait maybe not?
 // do more testing dingus
 
+//TODO check if list is empty when popping, removing, peeking
+
 #ifndef _SDAL_H_
 #define _SDAL_H_
 #include <stdexcept>
@@ -163,7 +165,7 @@ SDAL<E>::SDAL(size_t size) {
 	else {
 		array = new E[size];
 		array_size = size;
-		init_size = 50;
+		init_size = size;
 	}
 }
 
