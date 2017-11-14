@@ -8,12 +8,19 @@
 #ifndef _PSLL_H_
 #define _PSLL_H_
 #include <stdexcept>
-#include "LinkedList.h"
+#include "List.h"
 
 namespace cop3530 {
+	
+template <typename E>
+class Node {
+	public:
+	E data;
+	Node<E> * next;
+};
 
 template <typename E>
-class PSLL : public LinkedList<E> {
+class PSLL : public List<E> {
 	public:
 	PSLL();
 	~PSLL() override; //destructor
@@ -22,15 +29,15 @@ class PSLL : public LinkedList<E> {
 	PSLL(PSLL&& other); //move constructor
 	PSLL<E>& operator= (PSLL&& other); //move-assignment operator
 	
-	Node<E> * new_node(E element) override;
+	Node<E> * new_node(E element);
 	void push_back(E element) override;
 	void push_front(E element) override;
-	void insert(E element, int pos);
-	void replace(E element, int pos);
-	E remove(int pos);
+	void insert(E element, size_t pos);
+	void replace(E element, size_t pos);
+	E remove(size_t pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(int pos);
+	E item_at(size_t pos);
 	E peek_back() override;
 	E peek_front() override;
 	bool is_empty() override; 
@@ -39,7 +46,7 @@ class PSLL : public LinkedList<E> {
 	size_t pool_length();
  	void clear() override;
 	
-	bool contains(E element, bool (*equals_function)(E,E));	
+	bool contains(E element, bool (*equals_function)(const E&,const E&));	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
@@ -323,7 +330,7 @@ void PSLL<E>::push_front(E element) {
 
 //---insert()
 template <typename E>
-void PSLL<E>::insert(E element, int pos) {
+void PSLL<E>::insert(E element, size_t pos) {
 	class Node<E> *temp,*prev, *insert_node;
 	temp = head;
 	if (head == nullptr) {
@@ -331,11 +338,17 @@ void PSLL<E>::insert(E element, int pos) {
 		return;
 	}
 	int size = this->length();
-	if (pos > size || pos <= 0) {
+	if (pos > size || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
-	else if (pos == 1) {
+	else if (size == 0) {
+		insert_node = this->new_node(element);
+		head = insert_node;
+		tail = insert_node;
+		insert_node->next = nullptr;
+	}
+	else if (pos == 0) {
 		temp = head;
 		if (head_free == nullptr) {
 			insert_node = this->new_node(element);
@@ -365,13 +378,17 @@ void PSLL<E>::insert(E element, int pos) {
 			insert_node->next = nullptr;
 		}
 		insert_node->next = temp;
+		//if we insert at end, new tail
+		if (insert_node->next == nullptr) {
+			tail = insert_node;
+		}
 		prev->next = insert_node;
 	}
 }
 
 //---replace()
 template <typename E>
-void PSLL<E>::replace(E element, int pos) {
+void PSLL<E>::replace(E element, size_t pos) {
 	class Node<E> *temp;
 	temp = head;
 	if (head == nullptr) {
@@ -379,12 +396,11 @@ void PSLL<E>::replace(E element, int pos) {
 		return;
 	}
 	int size = this->length();
-	if (pos > size || pos <= 0) {
+	if (pos > size || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
-	for (int i = 0; i < pos - 1; i++) {
-		//catch an invalid position here later
+	for (int i = 0; i < pos; i++) {
 		temp = temp->next;
 	}
 	temp->data = element;
@@ -393,7 +409,7 @@ void PSLL<E>::replace(E element, int pos) {
 
 //---remove()
 template <typename E>
-E PSLL<E>::remove(int pos) {
+E PSLL<E>::remove(size_t pos) {
 	class Node<E> *temp, *prev;
 	temp = head;
 	if (head == nullptr) {
@@ -401,11 +417,19 @@ E PSLL<E>::remove(int pos) {
 		return 0;
 	}
 	int size = this->length();
-	if (pos > size || pos <= 0) {
+	if (pos > size || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
-	for (int i = 1; i < pos; i++) {
+	//special case if pos == 0
+	if (pos == 0) {
+		head = head->next;
+		E value = temp->data;
+		temp->next = head_free;
+		head_free = temp;
+		return value;
+	}
+	for (int i = 0; i < pos; i++) {
 		prev = temp;
 		temp = temp->next;
 	}
@@ -472,7 +496,7 @@ E PSLL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E PSLL<E>::item_at(int pos) {
+E PSLL<E>::item_at(size_t pos) {
 	class Node<E> *temp, *prev;
 	temp = head;
 	if (head == nullptr) {
@@ -480,11 +504,11 @@ E PSLL<E>::item_at(int pos) {
 		return 0;
 	}
 	int size = this->length();
-	if (pos > size || pos <= 0) {
+	if (pos > size || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
-	for (int i = 1; i < pos; i++) {
+	for (int i = 0; i < pos; i++) {
 		temp = temp->next;
 	}
 	E value = temp->data;
@@ -587,7 +611,7 @@ void PSLL<E>::clear() {
 
 //---contains()
 template <typename E>
-bool PSLL<E>::contains(E element, bool (*equals_function)(E,E)) {
+bool PSLL<E>::contains(E element, bool (*equals_function)(const E&,const E&)) {
 	if (head == nullptr) {
 		std::cout<<"List is empty!"<<std::endl;
 		return false;
@@ -611,17 +635,17 @@ bool PSLL<E>::contains(E element, bool (*equals_function)(E,E)) {
 template <typename E>
 void PSLL<E>::print(std::ostream& stream) {
 	if (head == nullptr) {
-		std::cout <<"<empty list>"<< std::endl;
+		stream <<"<empty list>"<< std::endl;
 	}
 	else {
 		class Node<E> *temp;
 		temp = head;
 		std::cout<<"[ ";
 		while (temp != nullptr) {
-			std::cout<<temp->data<<", ";
+			stream<<temp->data<<", ";
 			temp = temp->next;
 		}
-		std::cout<<"]"<<std::endl;
+		stream<<"]"<<std::endl;
 	}
 }
 

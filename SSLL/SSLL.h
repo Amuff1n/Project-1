@@ -332,7 +332,7 @@ E SSLL<E>::remove(size_t pos) {
 		//std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
-	//special case is pos = 1
+	//special case is pos == 0
 	if (pos == 0) {
 		head = head->next;
 		E value = temp->data;
