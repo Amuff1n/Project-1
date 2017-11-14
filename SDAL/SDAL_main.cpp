@@ -4,7 +4,7 @@ using namespace cop3530;
 
 //equals function declared here
 //returns true if both input values are equals
-bool equals_function (int one, int two) {
+bool equals_function (const int& one,const int& two) {
 	if (one == two) {
 		return true;
 	}
@@ -16,7 +16,6 @@ bool equals_function (int one, int two) {
 int main() {
 	//testing SDAL, int type
 	int choice, input, pos;
-	std::ostream stream(0);
 	
 	std::cout<<"Input an initial size for the array-based list: "<<std::endl;
 	std::cin>>input;
@@ -124,7 +123,7 @@ int main() {
             break; 	
 		case 16:
             std::cout<<"Printing list: "<<std::endl;
-			sdal_1.print(stream);
+			sdal_1.print(std::cout);
             break; 	
 		case 17:{
             std::cout<<"Copying list to array and returning: "<<std::endl;
@@ -146,13 +145,13 @@ int main() {
 		case 19: {
 			std::cout<<"Testing copy constructor: "<<std::endl;
 			SDAL<int> sdal_2 = sdal_1;
-			sdal_2.print(stream);
+			sdal_2.print(std::cout);
 			std::cout<<"Testing copy assignment: "<<std::endl;
 			SDAL<int> sdal_3(5); //init the dynamic array to some random size for testing purposes
 			sdal_3.push_back(1337); //throw some value in there to make sure we don't get it back
-			sdal_3.print(stream); //print that to show it is different
+			sdal_3.print(std::cout); //print that to show it is different
 			sdal_3 = sdal_1;
-			sdal_3.print(stream); //after copy assignment, show that array is updated
+			sdal_3.print(std::cout); //after copy assignment, show that array is updated
 			break;
 		}
 		case 20:

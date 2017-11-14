@@ -14,12 +14,21 @@
 #ifndef _CDAL_H_
 #define _CDAL_H_
 #include <stdexcept>
-#include "LinkedList.h"
+#include "List.h"
 
 namespace cop3530 {
+	
+template <typename E>
+class Node {
+	public:
+	E  * array; //for CDAL, nodes will have a pointer to an array instead of just a value
+	Node<E> * next;
+	//Nodes will have their own tail indices but will not have their own operations
+	size_t tail_index = 0;
+};
 
 template <typename E>
-class CDAL : public LinkedList<E> {
+class CDAL : public List<E> {
 	public:
 	CDAL();
 	~CDAL() override;
@@ -28,15 +37,15 @@ class CDAL : public LinkedList<E> {
 	CDAL(CDAL&& other); //move constructor
 	CDAL<E>& operator= (CDAL&& other); //move-assignment operator
 	
-	Node<E> * new_node(E element) override;
+	Node<E> * new_node(E element);
 	void push_back(E element) override;
 	void push_front(E element) override;
-	void insert(E element, int pos);
-	void replace(E element, int pos);
-	E remove(int pos);
+	void insert(E element, size_t pos);
+	void replace(E element, size_t pos);
+	E remove(size_t pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(int pos);
+	E item_at(size_t pos);
 	E peek_back() override;
 	E peek_front() override;
 	bool is_empty() override; 
@@ -44,7 +53,7 @@ class CDAL : public LinkedList<E> {
 	size_t length() override;
 	void clear() override;
 	
-	bool contains(E element, bool (*equals_function)(E,E));	
+	bool contains(E element, bool (*equals_function)(const E&, const E&));	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
@@ -315,7 +324,7 @@ void CDAL<E>::push_front(E element) {
 //crashes in cpp but not in ubuntu? 
 //MAKE SURE TO CHECK THIS ON CISE SERVERS
 template <typename E>
-void CDAL<E>::insert(E element, int pos) {
+void CDAL<E>::insert(E element, size_t pos) {
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
@@ -383,7 +392,7 @@ void CDAL<E>::insert(E element, int pos) {
 
 //---replace()
 template <typename E>
-void CDAL<E>::replace(E element, int pos) {
+void CDAL<E>::replace(E element, size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
@@ -412,7 +421,7 @@ void CDAL<E>::replace(E element, int pos) {
 
 //---remove()
 template <typename E>
-E CDAL<E>::remove(int pos) {
+E CDAL<E>::remove(size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
@@ -524,7 +533,7 @@ E CDAL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E CDAL<E>::item_at(int pos) {
+E CDAL<E>::item_at(size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
@@ -632,7 +641,7 @@ void CDAL<E>::clear() {
 
 //---contains()
 template <typename E>
-bool CDAL<E>::contains(E element, bool (*equals_function)(E,E)) {
+bool CDAL<E>::contains(E element, bool (*equals_function)(const E&, const E&)) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr || temp_Node->tail_index == 0) {
@@ -660,17 +669,17 @@ void CDAL<E>::print(std::ostream& stream) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr || temp_Node->tail_index == 0) {
-		std::cout <<"<empty list>"<< std::endl;
+		stream <<"<empty list>"<< std::endl;
 	}
 	
-	std::cout<<"[ ";
+	stream<<"[ ";
 	while (temp_Node != nullptr) {
 		for (int i = 0; i < temp_Node->tail_index; i++) {
-			std::cout<<temp_Node->array[i]<<", ";
+			stream<<temp_Node->array[i]<<", ";
 		}
 		temp_Node = temp_Node->next;
 	}
-	std::cout<<"]"<<std::endl;
+	stream<<"]"<<std::endl;
 }
 
 //---contents()

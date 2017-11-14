@@ -4,7 +4,7 @@ using namespace cop3530;
 
 //equals function declared here
 //returns true if both input values are equals
-bool equals_function (int one, int two) {
+bool equals_function (const int& one, const int& two) {
 	if (one == two) {
 		return true;
 	}
@@ -16,7 +16,6 @@ bool equals_function (int one, int two) {
 int main() {
 	//testing CDAL, int type
 	int choice, input, pos;
-	std::ostream stream(0);
 	CDAL<int> cdal_1;
 	
 	std::cout<<"Be aware, positions start at 0!"<<std::endl;
@@ -121,7 +120,7 @@ int main() {
             break; 	
 		case 16:
             std::cout<<"Printing list: "<<std::endl;
-			cdal_1.print(stream);
+			cdal_1.print(std::cout);
             break; 	
 		case 17: {
             std::cout<<"Copying list to array and returning: "<<std::endl;
@@ -144,13 +143,13 @@ int main() {
 		case 19: {
 			std::cout<<"Testing copy constructor: "<<std::endl;
 			CDAL<int> cdal_2 = cdal_1;
-			cdal_2.print(stream);
+			cdal_2.print(std::cout);
 			std::cout<<"Testing copy assignment: "<<std::endl;
 			CDAL<int> cdal_3;
 			cdal_3.push_back(1337); //throw some value in there to make sure we don't get it back
-			cdal_3.print(stream); //print that to show it is different
+			cdal_3.print(std::cout); //print that to show it is different
 			cdal_3 = cdal_1;
-			cdal_3.print(stream);
+			cdal_3.print(std::cout);
 			break;
 		}
 		case 20:

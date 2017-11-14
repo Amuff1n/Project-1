@@ -11,12 +11,12 @@
 #ifndef _SDAL_H_
 #define _SDAL_H_
 #include <stdexcept>
-#include "LinkedList.h"
+#include "List.h"
 
 namespace cop3530 {
 
 template <typename E>
-class SDAL : public LinkedList<E> {
+class SDAL : public List<E> {
 	public:
 	SDAL(size_t size);
 	~SDAL() override;
@@ -25,15 +25,14 @@ class SDAL : public LinkedList<E> {
 	SDAL(SDAL&& other); //move constructor
 	SDAL<E>& operator= (SDAL&& other); //move-assignment operator
 	
-	Node<E> * new_node(E element) override;
 	void push_back(E element) override;
 	void push_front(E element) override;
-	void insert(E element, int pos); 
-	void replace(E element, int pos);
-	E remove(int pos);
+	void insert(E element, size_t pos); 
+	void replace(E element, size_t pos);
+	E remove(size_t pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(int pos);
+	E item_at(size_t pos);
 	E peek_back() override;
 	E peek_front() override;
 	bool is_empty() override; 
@@ -43,7 +42,7 @@ class SDAL : public LinkedList<E> {
 	
 	void allocate_new();
 	
-	bool contains(E element, bool (*equals_function)(E,E));	
+	bool contains(E element, bool (*equals_function)(const E&,const E&));	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
@@ -241,15 +240,6 @@ SDAL<E>& SDAL<E>::operator=(SDAL&& other) {
 	return *this;
 }
 
-//---new_node()
-//does nothing for SDAL, just there because of inheritance, leftover from Linkedlist.h
-template <typename E>
-Node<E> * SDAL<E>::new_node(E element) {
-	class Node<E> *temp_Node;
-	temp_Node = new Node<E>;
-	return temp_Node;
-}
-
 //---push_back()
 template <typename E>
 void SDAL<E>::push_back(E element) {
@@ -281,7 +271,7 @@ void SDAL<E>::push_front(E element) {
 
 //---insert()
 template <typename E>
-void SDAL<E>::insert(E element, int pos) {
+void SDAL<E>::insert(E element, size_t pos) {
 	//check if invalid index
 	if (pos > tail-1 || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
@@ -303,7 +293,7 @@ void SDAL<E>::insert(E element, int pos) {
 
 //---replace()
 template <typename E>
-void SDAL<E>::replace(E element, int pos) {
+void SDAL<E>::replace(E element, size_t pos) {
 	//check if invalid index
 	if (pos > tail-1 || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
@@ -316,7 +306,7 @@ void SDAL<E>::replace(E element, int pos) {
 
 //---remove()
 template <typename E>
-E SDAL<E>::remove(int pos) {
+E SDAL<E>::remove(size_t pos) {
 	//check if invalid index 
 	if (pos > tail-1 || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
@@ -367,7 +357,7 @@ E SDAL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E SDAL<E>::item_at(int pos) {
+E SDAL<E>::item_at(size_t pos) {
 	//check if invalid index 
 	if (pos > tail-1 || pos < 0) {
 		std::cout<<"Invalid position"<<std::endl;
@@ -439,7 +429,7 @@ void SDAL<E>::clear() {
 
 //---contains()
 template <typename E>
-bool SDAL<E>::contains(E element, bool (*equals_function)(E,E)) {
+bool SDAL<E>::contains(E element, bool (*equals_function)(const E&,const E&)) {
 	if (tail == 0) {
 		std::cout<<"List is empty!"<<std::endl;
 		return false;
@@ -459,14 +449,14 @@ bool SDAL<E>::contains(E element, bool (*equals_function)(E,E)) {
 template <typename E>
 void SDAL<E>::print(std::ostream& stream) {
 	if (tail == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		stream<<"List is empty!"<<std::endl;
 		return;
 	}
-	std::cout<<"[ ";
+	stream<<"[ ";
 	for (int i = 0; i < tail; i++) {
-		std::cout<<array[i]<<", ";
+		stream<<array[i]<<", ";
 	}
-	std::cout<<"]"<<std::endl;
+	stream<<"]"<<std::endl;
 	std::cout<<"array_size: "<<array_size<<std::endl;
 }
 

@@ -14,12 +14,12 @@
 #ifndef _CBL_H_
 #define _CBL_H_
 #include <stdexcept>
-#include "LinkedList.h"
+#include "List.h"
 
 namespace cop3530 {
 
 template <typename E>
-class CBL : public LinkedList<E> {
+class CBL : public List<E> {
 	public:
 	CBL(size_t size);
 	~CBL() override;
@@ -28,15 +28,14 @@ class CBL : public LinkedList<E> {
 	CBL(CBL&& other); //move constructor
 	CBL<E>& operator= (CBL&& other); //move-assignment operator
 	
-	Node<E> * new_node(E element) override;
 	void push_back(E element) override;
 	void push_front(E element) override;
-	void insert(E element, int pos); 
-	void replace(E element, int pos);
-	E remove(int pos);
+	void insert(E element, size_t pos); 
+	void replace(E element, size_t pos);
+	E remove(size_t pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(int pos);
+	E item_at(size_t pos);
 	E peek_back() override;
 	E peek_front() override;
 	bool is_empty() override; 
@@ -46,7 +45,7 @@ class CBL : public LinkedList<E> {
 	
 	void allocate_new();
 	
-	bool contains(E element, bool (*equals_function)(E,E));	
+	bool contains(E element, bool (*equals_function)(const E&, const E&));	
 	void print(std::ostream& stream) override;
 	E* const contents() override;
 	
@@ -259,15 +258,6 @@ CBL<E>& CBL<E>::operator=(CBL&& other) {
 	return *this;
 }
 
-//---new_node()
-//does nothing for CBL, just there because of inheritance, leftover from Linkedlist.h
-template <typename E>
-Node<E> * CBL<E>::new_node(E element) {
-	class Node<E> *temp_Node;
-	temp_Node = new Node<E>;
-	return temp_Node;
-}
-
 //---push_back()
 template <typename E>
 void CBL<E>::push_back(E element) {
@@ -316,7 +306,7 @@ void CBL<E>::push_front(E element) {
 
 //---insert()
 template <typename E>
-void CBL<E>::insert(E element, int pos) {
+void CBL<E>::insert(E element, size_t pos) {
 	//check if invalid index
 	size_t length = this->length();
 	
@@ -385,7 +375,7 @@ void CBL<E>::insert(E element, int pos) {
 
 //---replace()
 template <typename E>
-void CBL<E>::replace(E element, int pos) {
+void CBL<E>::replace(E element, size_t pos) {
 	//check if invalid index
 	size_t length = this->length();
 	if (pos > length || pos < 0) {
@@ -413,7 +403,7 @@ void CBL<E>::replace(E element, int pos) {
 //---remove()
 //does removing shift everything up or down in a CBL?
 template <typename E>
-E CBL<E>::remove(int pos) {
+E CBL<E>::remove(size_t pos) {
 	//check if invalid index 
 	size_t length = this->length();
 	if (pos > length || pos < 0) {
@@ -519,7 +509,7 @@ E CBL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E CBL<E>::item_at(int pos) {
+E CBL<E>::item_at(size_t pos) {
 	//check if invalid index 
 	size_t length = this->length();
 	
@@ -632,9 +622,9 @@ void CBL<E>::clear() {
 
 //---contains()
 template <typename E>
-bool CBL<E>::contains(E element, bool (*equals_function)(E,E)) {
+bool CBL<E>::contains(E element, bool (*equals_function)(const E&, const E&)) {
 	if (tail == head) {
-		std::cout<<"List is empty!"<<std::endl;
+		std::cout<<"List is empty!"<<std::endl; 
 		return false;
 	}
 	
@@ -675,29 +665,29 @@ template <typename E>
 void CBL<E>::print(std::ostream& stream) {
 	
 	if (tail == head) {
-		std::cout<<"List is empty!"<<std::endl;
+		stream<<"List is empty!"<<std::endl;
 		return;
 	}
 	
-	std::cout<<"[ ";
+	stream<<"[ ";
 	//if head before tail, like a normal array
 	if (head <= tail) {
 		for (int i = head; i < tail; i++) {
-			std::cout<<array[i]<<", ";
+			stream<<array[i]<<", ";
 		}
 	}
 	//if head after tail, there is wrap around, i.e. it is circular
 	else {
 		
 		for (int i = head; i < array_size; i++) {
-			std::cout<<array[i]<<", ";
+			stream<<array[i]<<", ";
 		}
 			
 		for (int i = 0; i < tail; i++) {
-			std::cout<<array[i]<<", ";
+			stream<<array[i]<<", ";
 		}
 	}
-	std::cout<<"]"<<std::endl;
+	stream<<"]"<<std::endl;
 }
 
 //---contents()
