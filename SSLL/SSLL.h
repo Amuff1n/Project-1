@@ -7,6 +7,13 @@
 #include "List.h"
 
 namespace cop3530 {
+	
+template <typename E>
+class Node {
+	public:
+	E data;
+	Node<E> * next;
+};
 
 template <typename E>
 class SSLL : public List<E> {
@@ -19,7 +26,7 @@ class SSLL : public List<E> {
 	SSLL<E>& operator= (SSLL&& other); //move-assignment operator
 	
 	
-	Node<E> * new_node(E element) override;
+	Node<E> * new_node(E element);
 	void push_back(E element) override;
 	void push_front(E element) override;
 	void insert(E element, size_t pos);// might be size_t == int 

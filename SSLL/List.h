@@ -5,7 +5,6 @@
 
 #ifndef _LIST_H_
 #define _LIST_H_
-#include "Node.h"
 #include <stdio.h> //needed for size_t
 
 namespace cop3530 {
@@ -17,7 +16,6 @@ class List {
 	//what type is pos? should be overriden later by list type?
 	//i'll go with size_t for now
 	
-	virtual Node<E> * new_node(E) = 0;
 	virtual void push_back(E element) = 0;
 	virtual void push_front(E element) = 0;
 	virtual void insert(E element, size_t pos) = 0;

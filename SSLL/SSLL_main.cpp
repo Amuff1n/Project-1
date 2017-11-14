@@ -17,7 +17,6 @@ int main() {
 	//testing SSLL, char type
 	int choice, pos;
 	char input;
-	std::ostream stream(0);
 	SSLL<char> ssll_1;
 	
 	while (true) {
@@ -120,7 +119,7 @@ int main() {
             break; 
 		case 16:
             std::cout<<"Printing list: "<<std::endl;
-			ssll_1.print(stream);
+			ssll_1.print(std::cout);
             break; 	
 		case 17: {
             std::cout<<"Copying list to array and returning: "<<std::endl;
@@ -142,13 +141,13 @@ int main() {
 		case 19: {
 			std::cout<<"Testing copy constructor: "<<std::endl;
 			SSLL<char> ssll_2 = ssll_1;
-			ssll_2.print(stream);
+			ssll_2.print(std::cout);
 			std::cout<<"Testing copy assignment: "<<std::endl;
 			SSLL<char> ssll_3;
 			ssll_3.push_back('Z'); //throw some value in there to make sure we don't get it back
-			ssll_3.print(stream); //print that to show it is different
+			ssll_3.print(std::cout); //print that to show it is different
 			ssll_3 = ssll_1;
-			ssll_3.print(stream);
+			ssll_3.print(std::cout);
 			break;
 		}
 		case 20:
