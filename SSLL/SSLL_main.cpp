@@ -4,7 +4,7 @@ using namespace cop3530;
 
 //equals function declared here
 //returns true if both input values are equals
-bool equals_function (int one, int two) {
+bool equals_function (const char& one, const char& two) {
 	if (one == two) {
 		return true;
 	}
@@ -14,10 +14,11 @@ bool equals_function (int one, int two) {
 }
 
 int main() {
-	//testing SSLL, int type
-	int choice, input, pos;
+	//testing SSLL, char type
+	int choice, pos;
+	char input;
 	std::ostream stream(0);
-	SSLL<int> ssll_1;
+	SSLL<char> ssll_1;
 	
 	while (true) {
 		std::cout<<"\n---Operations on SSLL---"<<std::endl;
@@ -123,14 +124,14 @@ int main() {
             break; 	
 		case 17: {
             std::cout<<"Copying list to array and returning: "<<std::endl;
-			int * output = ssll_1.contents();
+			char * output = ssll_1.contents();
 			delete[] output;
             break; 
 		}
 		case 18: {
 			std::cout<<"Testing Iterator by printing out contents of list: "<<std::endl;
-			SSLL<int>::iterator iter = ssll_1.begin();
-			SSLL<int>::iterator end = ssll_1.end();
+			SSLL<char>::iterator iter = ssll_1.begin();
+			SSLL<char>::iterator end = ssll_1.end();
 			std::cout<<"[ ";
 			for ( ; iter != end; ++iter) {
 				std::cout<<*iter<< ", ";
@@ -140,11 +141,11 @@ int main() {
 		}
 		case 19: {
 			std::cout<<"Testing copy constructor: "<<std::endl;
-			SSLL<int> ssll_2 = ssll_1;
+			SSLL<char> ssll_2 = ssll_1;
 			ssll_2.print(stream);
 			std::cout<<"Testing copy assignment: "<<std::endl;
-			SSLL<int> ssll_3;
-			ssll_3.push_back(1337); //throw some value in there to make sure we don't get it back
+			SSLL<char> ssll_3;
+			ssll_3.push_back('Z'); //throw some value in there to make sure we don't get it back
 			ssll_3.print(stream); //print that to show it is different
 			ssll_3 = ssll_1;
 			ssll_3.print(stream);
