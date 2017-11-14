@@ -7,7 +7,9 @@
 //maybe change all the ints to size_t later?
 
 //TODO Iterator breaks when new array allocated, wait maybe not?
-// do more testing dingus
+
+//good luck to the poor soul who tries to understand this code later
+//(that includes me)
 
 #ifndef _CBL_H_
 #define _CBL_H_
@@ -409,6 +411,7 @@ void CBL<E>::replace(E element, int pos) {
 }
 
 //---remove()
+//does removing shift everything up or down in a CBL?
 template <typename E>
 E CBL<E>::remove(int pos) {
 	//check if invalid index 
@@ -422,12 +425,47 @@ E CBL<E>::remove(int pos) {
 		this->allocate_new();
 	}
 	
-	size_t size = this->length();
-	E value = array[pos];
-	for (int i = pos; i < size; i++) {
-		array[i] = array[i + 1];
+	E value;
+	//like a normal array
+	if (head <= tail) {
+		int i = 0;
+		value = array[head + pos];
+		
+		//shift everything down 1
+		for (i = pos + head; i < tail; i++) {
+			array[i] = array[i + 1];
+		}
+		tail--;
 	}
-	tail--;
+	//otherwise head > tail and it is circular
+	else {
+		int i = 0;
+		E temp = array[0];
+		//if pos is on head side of circular array, we'll need wrap around when we shift up
+		if (pos < array_size - head) {
+			value = array[head + pos];
+			for (i = head; i < array_size; i++) {
+				array[i] = array[i + 1];
+			}
+			
+			for (i = 0; i < tail; i++) {
+				array[i] = array[i+1];
+			}
+			array[array_size - 1] = temp;
+			tail--;
+			
+		}
+		//otherwise we only need to shift up at tail end
+		else {
+			//shift everything up at tail end
+			size_t local_pos = pos - (array_size - head);
+			value = array[local_pos];
+			for (i = local_pos; i < tail; i++) {
+				array[i] = array[i+1];
+			}
+			tail--;
+		}
+	}
 	return value;
 }
 
