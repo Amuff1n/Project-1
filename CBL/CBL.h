@@ -274,7 +274,7 @@ void CBL<E>::push_back(E element) {
 	}
 	array[tail-1] = element;
 	
-	std::cout<<"Pushed to back!"<<std::endl;
+	//std::cout<<"Pushed to back!"<<std::endl;
 }
 
 //---push_front()
@@ -301,7 +301,7 @@ void CBL<E>::push_front(E element) {
 		head--;
 		array[head] = element;
 	}
-	std::cout<<"Pushed to front!"<<std::endl;
+	//std::cout<<"Pushed to front!"<<std::endl;
 }
 
 //---insert()
@@ -316,7 +316,7 @@ void CBL<E>::insert(E element, size_t pos) {
 		return;
 	}
 	if (pos > length || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	
@@ -370,7 +370,7 @@ void CBL<E>::insert(E element, size_t pos) {
 			tail++;
 		}
 	}
-	std::cout<<"Inserted!"<<std::endl;
+	//std::cout<<"Inserted!"<<std::endl;
 }
 
 //---replace()
@@ -379,7 +379,7 @@ void CBL<E>::replace(E element, size_t pos) {
 	//check if invalid index
 	size_t length = this->length();
 	if (pos > length || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	
@@ -397,7 +397,7 @@ void CBL<E>::replace(E element, size_t pos) {
 			array[local_pos] = element;
 		}	
 	}
-	std::cout<<"Replaced!"<<std::endl;
+	//std::cout<<"Replaced!"<<std::endl;
 }
 
 //---remove()
@@ -407,7 +407,7 @@ E CBL<E>::remove(size_t pos) {
 	//check if invalid index 
 	size_t length = this->length();
 	if (pos > length || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	
@@ -465,7 +465,7 @@ E CBL<E>::pop_back() {
 	size_t length = this->length();
 	
 	if (length == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	
@@ -489,7 +489,7 @@ E CBL<E>::pop_front() {
 	size_t length = this->length();
 	
 	if (length == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	
@@ -514,12 +514,12 @@ E CBL<E>::item_at(size_t pos) {
 	size_t length = this->length();
 	
 	if (length == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	
 	if (pos >= length || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	
@@ -546,7 +546,7 @@ E CBL<E>::item_at(size_t pos) {
 template <typename E>
 E CBL<E>::peek_back() {
 	if (head == tail) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	
@@ -558,7 +558,7 @@ E CBL<E>::peek_back() {
 template <typename E>
 E CBL<E>::peek_front() {
 	if (head == tail) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	
@@ -570,11 +570,11 @@ E CBL<E>::peek_front() {
 template <typename E>
 bool CBL<E>::is_empty() {
 	if (head == tail) {
-		std::cout<<"Empty!"<<std::endl;
+		//std::cout<<"Empty!"<<std::endl;
 		return true;
 	}
 	else {
-		std::cout<<"Not Empty!"<<std::endl;
+		//std::cout<<"Not Empty!"<<std::endl;
 		return false;
 	}
 }
@@ -584,11 +584,11 @@ template <typename E>
 bool CBL<E>::is_full() {
 	size_t length = this->length();
 	if (length == array_size) {
-		std::cout<<"Array is full!"<<std::endl;
+		//std::cout<<"Array is full!"<<std::endl;
 		return true;
 	}
 	else {
-		std::cout<<"Array is not full!"<<std::endl;
+		//std::cout<<"Array is not full!"<<std::endl;
 		return false;
 	}
 }
@@ -624,7 +624,7 @@ void CBL<E>::clear() {
 template <typename E>
 bool CBL<E>::contains(E element, bool (*equals_function)(const E&, const E&)) {
 	if (tail == head) {
-		std::cout<<"List is empty!"<<std::endl; 
+		//std::cout<<"List is empty!"<<std::endl; 
 		return false;
 	}
 	
@@ -632,7 +632,7 @@ bool CBL<E>::contains(E element, bool (*equals_function)(const E&, const E&)) {
 	if (head <= tail) {
 		for (int i = head; i < tail; i++) {
 			if (equals_function(element,array[i])) {
-				std::cout<<element<<" exists in list!"<<std::endl;
+				//std::cout<<element<<" exists in list!"<<std::endl;
 				return true;
 			}
 		}
@@ -642,20 +642,20 @@ bool CBL<E>::contains(E element, bool (*equals_function)(const E&, const E&)) {
 		
 		for (int i = head; i < array_size; i++) {
 			if (equals_function(element,array[i])) {
-				std::cout<<element<<" exists in list!"<<std::endl;
+				//std::cout<<element<<" exists in list!"<<std::endl;
 				return true;
 			}
 		}
 			
 		for (int i = 0; i < tail; i++) {
 			if (equals_function(element,array[i])) {
-				std::cout<<element<<" exists in list!"<<std::endl;
+				//std::cout<<element<<" exists in list!"<<std::endl;
 				return true;
 			}
 		}
 	}
 	
-	std::cout<<element<<" is not in list!"<<std::endl;
+	//std::cout<<element<<" is not in list!"<<std::endl;
 	return false;
 }
 
@@ -665,7 +665,7 @@ template <typename E>
 void CBL<E>::print(std::ostream& stream) {
 	
 	if (tail == head) {
-		stream<<"List is empty!"<<std::endl;
+		stream<<"<empty list>"<<std::endl;
 		return;
 	}
 	
@@ -719,7 +719,7 @@ E* const CBL<E>::contents() {
 	//print array for testing purposes
 	/*
 	for (int i = 0; i < length; i++) {
-		std::cout<<copied_Array[i]<<" ";
+		//std::cout<<copied_Array[i]<<" ";
 	}
 	*/
 	
@@ -729,7 +729,7 @@ E* const CBL<E>::contents() {
 //---allocate_new()
 template <typename E>
 void CBL<E>::allocate_new() {
-	std::cout<<"allocating new array"<<std::endl;
+	//std::cout<<"allocating new array"<<std::endl;
 	size_t length = this->length();
 	if (array_size >= (init_size * 2) && length < array_size/2) {
 		//allocate new array 75% size of original
@@ -795,7 +795,7 @@ void CBL<E>::allocate_new() {
 		delete[] array;
 		array = temp;
 	}
-	std::cout<<"new array size: "<<array_size<<std::endl;
+	//std::cout<<"new array size: "<<array_size<<std::endl;
 }
 
 }

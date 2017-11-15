@@ -250,7 +250,7 @@ void SDAL<E>::push_back(E element) {
 	tail++;
 	array[tail-1] = element;
 	
-	std::cout<<"Pushed to back!"<<std::endl;
+	//std::cout<<"Pushed to back!"<<std::endl;
 }
 
 //---push_front()
@@ -266,7 +266,7 @@ void SDAL<E>::push_front(E element) {
 	}
 	tail++;
 	array[0] = element;
-	std::cout<<"Pushed to front!"<<std::endl;
+	//std::cout<<"Pushed to front!"<<std::endl;
 }
 
 //---insert()
@@ -274,7 +274,7 @@ template <typename E>
 void SDAL<E>::insert(E element, size_t pos) {
 	//check if invalid index
 	if (pos > tail-1 || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	
@@ -288,7 +288,7 @@ void SDAL<E>::insert(E element, size_t pos) {
 	}
 	tail++;
 	array[pos] = element;
-	std::cout<<"Inserted!"<<std::endl;
+	//std::cout<<"Inserted!"<<std::endl;
 }
 
 //---replace()
@@ -296,12 +296,12 @@ template <typename E>
 void SDAL<E>::replace(E element, size_t pos) {
 	//check if invalid index
 	if (pos > tail-1 || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	
 	array[pos] = element;
-	std::cout<<"Replaced!"<<std::endl;
+	//std::cout<<"Replaced!"<<std::endl;
 }
 
 //---remove()
@@ -309,7 +309,7 @@ template <typename E>
 E SDAL<E>::remove(size_t pos) {
 	//check if invalid index 
 	if (pos > tail-1 || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	
@@ -360,7 +360,7 @@ template <typename E>
 E SDAL<E>::item_at(size_t pos) {
 	//check if invalid index 
 	if (pos > tail-1 || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	
@@ -386,11 +386,11 @@ E SDAL<E>::peek_front() {
 template <typename E>
 bool SDAL<E>::is_empty() {
 	if (array[0] == 0 && tail == 0) {
-		std::cout<<"Empty!"<<std::endl;
+		//std::cout<<"Empty!"<<std::endl;
 		return true;
 	}
 	else {
-		std::cout<<"Not Empty!"<<std::endl;
+		//std::cout<<"Not Empty!"<<std::endl;
 		return false;
 	}
 }
@@ -400,11 +400,11 @@ template <typename E>
 bool SDAL<E>::is_full() {
 	size_t size = this->length();
 	if (size == array_size) {
-		std::cout<<"Array is full!"<<std::endl;
+		//std::cout<<"Array is full!"<<std::endl;
 		return true;
 	}
 	else {
-		std::cout<<"Array is not full!"<<std::endl;
+		//std::cout<<"Array is not full!"<<std::endl;
 		return false;
 	}
 }
@@ -431,16 +431,16 @@ void SDAL<E>::clear() {
 template <typename E>
 bool SDAL<E>::contains(E element, bool (*equals_function)(const E&,const E&)) {
 	if (tail == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return false;
 	}
 	for (int i = 0; i <= tail; i++) {
 		if (equals_function(element,array[i])) {
-			std::cout<<element<<" exists in list!"<<std::endl;
+			//std::cout<<element<<" exists in list!"<<std::endl;
 			return true;
 		}
 	}
-	std::cout<<element<<" is not in list!"<<std::endl;
+	//std::cout<<element<<" is not in list!"<<std::endl;
 	return false;
 }
 
@@ -449,7 +449,7 @@ bool SDAL<E>::contains(E element, bool (*equals_function)(const E&,const E&)) {
 template <typename E>
 void SDAL<E>::print(std::ostream& stream) {
 	if (tail == 0) {
-		stream<<"List is empty!"<<std::endl;
+		stream<<"<empty list>"<<std::endl;
 		return;
 	}
 	stream<<"[ ";
@@ -457,7 +457,7 @@ void SDAL<E>::print(std::ostream& stream) {
 		stream<<array[i]<<", ";
 	}
 	stream<<"]"<<std::endl;
-	std::cout<<"array_size: "<<array_size<<std::endl;
+	//std::cout<<"array_size: "<<array_size<<std::endl;
 }
 
 //---contents()
@@ -471,7 +471,7 @@ E* const SDAL<E>::contents() {
 	//print array for testing purposes
 	/*
 	for (i = 0; i < size; i++) {
-		std::cout<<array[i]<<" ";
+		//std::cout<<array[i]<<" ";
 	}
 	*/
 	

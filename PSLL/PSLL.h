@@ -298,7 +298,7 @@ void PSLL<E>::push_back(E element) {
 		tail = temp_Node;
 	}
 	
-	std::cout<<"Pushed to back!"<<std::endl;
+	//std::cout<<"Pushed to back!"<<std::endl;
 }
 
 //---push_front()
@@ -325,7 +325,7 @@ void PSLL<E>::push_front(E element) {
 		head = temp_Node;
 		head->next = temp;
 	}
-	std::cout<<"Pushed to front!"<<std::endl;
+	//std::cout<<"Pushed to front!"<<std::endl;
 }
 
 //---insert()
@@ -334,12 +334,12 @@ void PSLL<E>::insert(E element, size_t pos) {
 	class Node<E> *temp,*prev, *insert_node;
 	temp = head;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
 	int size = this->length();
 	if (pos > size || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	else if (size == 0) {
@@ -392,19 +392,19 @@ void PSLL<E>::replace(E element, size_t pos) {
 	class Node<E> *temp;
 	temp = head;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
 	int size = this->length();
 	if (pos > size || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return;
 	}
 	for (int i = 0; i < pos; i++) {
 		temp = temp->next;
 	}
 	temp->data = element;
-	std::cout<<"Replaced!"<<std::endl;
+	//std::cout<<"Replaced!"<<std::endl;
 }
 
 //---remove()
@@ -413,12 +413,12 @@ E PSLL<E>::remove(size_t pos) {
 	class Node<E> *temp, *prev;
 	temp = head;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	int size = this->length();
 	if (pos > size || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	//special case if pos == 0
@@ -451,7 +451,7 @@ template <typename E>
 E PSLL<E>::pop_back() {
 	E value;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	//special case if list is size 1
@@ -483,7 +483,7 @@ E PSLL<E>::pop_front() {
 	E value;
 	class Node<E> *temp_Node;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	value = head->data;
@@ -500,12 +500,12 @@ E PSLL<E>::item_at(size_t pos) {
 	class Node<E> *temp, *prev;
 	temp = head;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	int size = this->length();
 	if (pos > size || pos < 0) {
-		std::cout<<"Invalid position"<<std::endl;
+		//std::cout<<"Invalid position"<<std::endl;
 		return 0;
 	}
 	for (int i = 0; i < pos; i++) {
@@ -520,7 +520,7 @@ template <typename E>
 E PSLL<E>::peek_back() {
 	E value;
 	if (tail == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	else {
@@ -534,7 +534,7 @@ template <typename E>
 E PSLL<E>::peek_front() {
 	E value;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	else {
@@ -547,11 +547,11 @@ E PSLL<E>::peek_front() {
 template <typename E>
 bool PSLL<E>::is_empty() {
 	if (head == nullptr) {
-		std::cout<<"Empty!"<<std::endl;
+		//std::cout<<"Empty!"<<std::endl;
 		return true;
 	}
 	else {
-		std::cout<<"Not Empty!"<<std::endl;
+		//std::cout<<"Not Empty!"<<std::endl;
 		return false;
 	}
 }
@@ -559,7 +559,7 @@ bool PSLL<E>::is_empty() {
 //---is_full()
 template <typename E>
 bool PSLL<E>::is_full() {
-	std::cout<<"If this is full you have a problem"<<std::endl;
+	//std::cout<<"If this is full you have a problem"<<std::endl;
 	return false;
 }
 
@@ -593,7 +593,7 @@ size_t PSLL<E>::pool_length() {
 template <typename E>
 void PSLL<E>::clear() {
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 	}
 	else {
 		class Node<E> *temp,*prev;
@@ -613,7 +613,7 @@ void PSLL<E>::clear() {
 template <typename E>
 bool PSLL<E>::contains(E element, bool (*equals_function)(const E&,const E&)) {
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return false;
 	}
 	else {
@@ -621,12 +621,12 @@ bool PSLL<E>::contains(E element, bool (*equals_function)(const E&,const E&)) {
 		temp = head;
 		while (temp != nullptr) {
 			if (equals_function(element,temp->data)) {
-				std::cout<<element<<" exists in list!"<<std::endl;
+				//std::cout<<element<<" exists in list!"<<std::endl;
 				return true;
 			}
 			temp = temp->next;
 		}
-		std::cout<<element<<" is not in list!"<<std::endl;
+		//std::cout<<element<<" is not in list!"<<std::endl;
 		return false;
 	}
 }
@@ -640,7 +640,7 @@ void PSLL<E>::print(std::ostream& stream) {
 	else {
 		class Node<E> *temp;
 		temp = head;
-		std::cout<<"[ ";
+		stream<<"[ ";
 		while (temp != nullptr) {
 			stream<<temp->data<<", ";
 			temp = temp->next;
@@ -653,7 +653,7 @@ void PSLL<E>::print(std::ostream& stream) {
 template <typename E>
 E* const PSLL<E>::contents() {
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 	}
 	int size = this->length();
 	E *array = new E[size];

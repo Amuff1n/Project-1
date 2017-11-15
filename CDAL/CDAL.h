@@ -267,7 +267,7 @@ void CDAL<E>::push_back(E element) {
 	tail->tail_index++;
 	
 	tail->array[tail->tail_index-1] = element;
-	std::cout<<"Pushed to back!"<<std::endl;
+	//std::cout<<"Pushed to back!"<<std::endl;
 }
 
 //---push_front()
@@ -316,7 +316,7 @@ void CDAL<E>::push_front(E element) {
 		temp_Node->array[0] = element;
 		temp_Node->tail_index++;
 	}
-	std::cout<<"Pushed to front!"<<std::endl;
+	//std::cout<<"Pushed to front!"<<std::endl;
 }
 
 //---insert()
@@ -328,7 +328,7 @@ void CDAL<E>::insert(E element, size_t pos) {
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
-		std::cout<<"Invalid Position"<<std::endl;
+		//std::cout<<"Invalid Position"<<std::endl;
 		return;
 	}
 	//calculate how many nodes we have to traverse to get to pos
@@ -386,7 +386,7 @@ void CDAL<E>::insert(E element, size_t pos) {
 		temp_Node->tail_index++;
 	}
 	
-	std::cout<<"inserted!"<<std::endl;
+	//std::cout<<"inserted!"<<std::endl;
 }
 
 
@@ -396,13 +396,13 @@ void CDAL<E>::replace(E element, size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return;
 	}
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
-		std::cout<<"Invalid Position"<<std::endl;
+		//std::cout<<"Invalid Position"<<std::endl;
 		return;
 	}
 	//calculate how many nodes we have to traverse to get to pos
@@ -416,7 +416,7 @@ void CDAL<E>::replace(E element, size_t pos) {
 	
 	temp_Node->array[local_pos] = element;
 	
-	std::cout<<"Replaced!"<<std::endl;
+	//std::cout<<"Replaced!"<<std::endl;
 }
 
 //---remove()
@@ -425,13 +425,13 @@ E CDAL<E>::remove(size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
-		std::cout<<"Invalid Position"<<std::endl;
+		//std::cout<<"Invalid Position"<<std::endl;
 		return 0;
 	}
 	//calculate how many nodes we have to traverse to get to pos
@@ -474,7 +474,7 @@ template <typename E>
 E CDAL<E>::pop_back() {
 	E value;
 	if (head == nullptr || head->tail_index == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	value = tail->array[tail->tail_index-1];
@@ -502,7 +502,7 @@ E CDAL<E>::pop_front() {
 	temp_Node = head;
 	
 	if (head == nullptr || head->tail_index == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	value = head->array[0];
@@ -537,13 +537,13 @@ E CDAL<E>::item_at(size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
-		std::cout<<"Invalid Position"<<std::endl;
+		//std::cout<<"Invalid Position"<<std::endl;
 		return 0;
 	}
 	//calculate how many nodes we have to traverse to get to pos
@@ -563,7 +563,7 @@ template <typename E>
 E CDAL<E>::peek_back() {
 	E value;
 	if (tail == nullptr || head->tail_index == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	else {
@@ -577,7 +577,7 @@ template <typename E>
 E CDAL<E>::peek_front() {
 	E value;
 	if (head == nullptr || head->tail_index == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 		return 0;
 	}
 	else {
@@ -590,11 +590,11 @@ E CDAL<E>::peek_front() {
 template <typename E>
 bool CDAL<E>::is_empty() {
 	if (head == nullptr || head->tail_index == 0) {
-		std::cout<<"Empty!"<<std::endl;
+		//std::cout<<"Empty!"<<std::endl;
 		return true;
 	}
 	else {
-		std::cout<<"Not Empty!"<<std::endl;
+		//std::cout<<"Not Empty!"<<std::endl;
 		return false;
 	}
 }
@@ -602,7 +602,7 @@ bool CDAL<E>::is_empty() {
 //---is_full()
 template <typename E>
 bool CDAL<E>::is_full() {
-	std::cout<<"If this is full you have a problem"<<std::endl;
+	//std::cout<<"If this is full you have a problem"<<std::endl;
 	return false;
 }
 
@@ -623,7 +623,7 @@ size_t CDAL<E>::length() {
 template <typename E>
 void CDAL<E>::clear() {
 	if (head == nullptr) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 	}
 	else {
 		class Node<E> *temp_Node,*prev_Node;
@@ -645,20 +645,20 @@ bool CDAL<E>::contains(E element, bool (*equals_function)(const E&, const E&)) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr || temp_Node->tail_index == 0) {
-		std::cout <<"List is empty!"<< std::endl;
+		//std::cout <<"List is empty!"<< std::endl;
 		return false;
 	}
 	
 	while (temp_Node != nullptr) {
 		for (int i = 0; i < temp_Node->tail_index; i++) {
 			if (equals_function(temp_Node->array[i],element)) {
-				std::cout<<element<<" exists in list!"<<std::endl;
+				//std::cout<<element<<" exists in list!"<<std::endl;
 				return true;
 			}
 		}
 		temp_Node=temp_Node->next;
 	}
-	std::cout<<element<<" is not in list!"<<std::endl;
+	//std::cout<<element<<" is not in list!"<<std::endl;
 	return false;
 }
 
@@ -690,7 +690,7 @@ E* const CDAL<E>::contents() {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr || temp_Node->tail_index == 0) {
-		std::cout<<"List is empty!"<<std::endl;
+		//std::cout<<"List is empty!"<<std::endl;
 	}
 	
 	int size = this->length();
