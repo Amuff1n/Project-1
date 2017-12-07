@@ -29,17 +29,21 @@ class SSLL : public List<E> {
 	Node<E> * new_node(E element);
 	void push_back(E element) override;
 	void push_front(E element) override;
-	void insert(E element, size_t pos);// might be size_t == int 
+	void insert(E element, size_t pos); 
 	void replace(E element, size_t pos);
 	E remove(size_t pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(size_t pos);
-	E peek_back() override;
-	E peek_front() override;
+	E& item_at(size_t pos);
+	const E& item_at(size_t pos) const;
+	E& peek_back() override;
+	const E& peek_back() const;
+	E& peek_front() override;
+	const E& peek_front() const;
 	bool is_empty() override; 
 	bool is_full() override;
 	size_t length() override;
+	const size_t length() const;
 	void clear() override;
 	
 	bool contains(E element, bool (*equals_function)(const E&,const E&));	
@@ -161,6 +165,7 @@ template <typename E>
 SSLL<E>::SSLL(const SSLL& other) {
 	class Node<E> *temp;
 	temp = other.head;
+
 	while (temp) {
 		this->push_back(temp->data);
 		temp = temp->next;
@@ -168,17 +173,20 @@ SSLL<E>::SSLL(const SSLL& other) {
 }
 
 //---copy-assignment
-//may have exception problems if other throws exceptions
+//may have exception problems if 'other' throws exceptions
 template <typename E>
 SSLL<E>& SSLL<E>::operator=(const SSLL& other) {
-	if (this != &other) {
-		this->clear();
-		class Node<E> *temp;
-		temp = other.head;
-		while (temp) {
-			this->push_back(temp->data);
-			temp = temp->next;
-		}
+	if (this == &other) {
+		return *this;
+	}
+	//clear self
+	this->clear();
+	
+	class Node<E> *temp;
+	temp = other.head;
+	while (temp) {
+		this->push_back(temp->data);
+		temp = temp->next;
 	}
 	return *this;
 }
@@ -186,27 +194,28 @@ SSLL<E>& SSLL<E>::operator=(const SSLL& other) {
 //---move constructor
 template <typename E>
 SSLL<E>::SSLL(SSLL&& other) {
-	head = other->head;
-	tail = other->tail;
+	head = other.head;
+	tail = other.tail;
 	//set other to default values to avoid being automatically destroyed
-	other->head = nullptr;
-	other->tail = nullptr;
+	other.head = nullptr;
+	other.tail = nullptr;
 }
 
 //---move-assignment
 template <typename E>
 SSLL<E>& SSLL<E>::operator=(SSLL&& other) {
 	//make sure we aren't referencing ourself
-	if (this != &other) {
-		//free existing data
-		this->clear();
-		head = other->head;
-		tail = other->tail;
-		
-		//set other to default values to avoid being automatically destroyed
-		other->head = nullptr;
-		other->tail = nullptr;
+	if (this == &other) {
+		return *this;
 	}
+	//free existing data
+	this->clear();
+	head = other.head;
+	tail = other.tail;
+		
+	//set other to default values to avoid being automatically destroyed
+	other.head = nullptr;
+	other.tail = nullptr;
 	return *this;
 }
 
@@ -260,14 +269,14 @@ void SSLL<E>::push_front(E element) {
 }
 
 //---insert()
-//check if pos will be invalid
 template <typename E>
 void SSLL<E>::insert(E element, size_t pos) {
 	class Node<E> *temp,*prev, *insert_node;
 	temp = head;
 	int size = this->length();
+	//check if pos will be invalid
 	if (pos > size || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return;
 	}
 	else if (size == 0) {
@@ -303,12 +312,12 @@ void SSLL<E>::replace(E element, size_t pos) {
 	class Node<E> *temp;
 	temp = head;
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return;
 	}
 	int size = this->length();
 	if (pos > size || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return;
 	}
 	for (int i = 0; i < pos; i++) {
@@ -324,12 +333,12 @@ E SSLL<E>::remove(size_t pos) {
 	class Node<E> *temp, *prev;
 	temp = head;
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	int size = this->length();
 	if (pos > size || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return 0;
 	}
 	//special case is pos == 0
@@ -360,7 +369,7 @@ template <typename E>
 E SSLL<E>::pop_back() {
 	E value;
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	//special case if list is size 1
@@ -390,7 +399,7 @@ E SSLL<E>::pop_front() {
 	E value;
 	class Node<E> *temp_Node;
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	value = head->data;
@@ -403,50 +412,83 @@ E SSLL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E SSLL<E>::item_at(size_t pos) {
+E& SSLL<E>::item_at(size_t pos) {
 	class Node<E> *temp, *prev;
 	temp = head;
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
-		return 0;
+		throw std::runtime_error("List is empty!");
 	}
 	int size = this->length();
 	if (pos > size || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
-		return 0;
+		throw std::invalid_argument("Invalid position");
 	}
 	for (int i = 0; i < pos; i++) {
 		temp = temp->next;
+	} 
+	return temp->data;
+}
+
+//---item_at() const
+template <typename E>
+const E& SSLL<E>::item_at(size_t pos) const {
+	class Node<E> *temp, *prev;
+	temp = head;
+	if (head == nullptr) {
+		throw std::runtime_error("List is empty!");
 	}
-	E value = temp->data;
-	return value;
+	int size = this->length();
+	if (pos > size || pos < 0) {
+		throw std::invalid_argument("Invalid position");
+	}
+	for (int i = 0; i < pos; i++) {
+		temp = temp->next;
+	} 
+	return temp->data;
 }
 
 //---peek_back()
 template <typename E>
-E SSLL<E>::peek_back() {
-	E value;
+E& SSLL<E>::peek_back() {
 	if (tail == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
-		return 0;
+		throw std::runtime_error("List is empty!");
 	}
 	else {
-	value = tail->data;
-	return value;
+	return tail->data;
+	}
+}
+
+//---peek_back() const
+template <typename E>
+const E& SSLL<E>::peek_back() const {
+	if (tail == nullptr) {
+		throw std::runtime_error("List is empty!");
+	}
+	else {
+	return tail->data;
 	}
 }
 
 //---peek_front()
 template <typename E>
-E SSLL<E>::peek_front() {
+E& SSLL<E>::peek_front() {
 	E value;
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
-		return 0;
+		throw std::runtime_error("List is empty!");
 	}
 	else {
-	value = head->data;
-	return value;
+	return head->data;
+	}
+}
+
+//---peek_front()
+template <typename E>
+const E& SSLL<E>::peek_front() const {
+	E value;
+	if (head == nullptr) {
+		throw std::runtime_error("List is empty!");
+	}
+	else {
+	return head->data;
 	}
 }
 
@@ -483,11 +525,24 @@ size_t SSLL<E>::length() {
 	return length;
 }
 
+//---length()
+template <typename E>
+const size_t SSLL<E>::length() const {
+	class Node<E> *temp;
+	temp = head;
+	size_t length = 0;
+	while (temp != nullptr) {
+		temp = temp->next;
+		length++;
+	}
+	return length;
+}
+
 //---clear()
 template <typename E>
 void SSLL<E>::clear() {
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		//throw std::runtime_error("List is empty!");
 	}
 	else {
 		class Node<E> *temp,*prev;
@@ -497,7 +552,8 @@ void SSLL<E>::clear() {
 			temp = temp->next;
 			delete prev;
 		}
-	head = tail = nullptr;
+	head = nullptr;
+	tail = nullptr;
 	}
 }
 
@@ -505,7 +561,7 @@ void SSLL<E>::clear() {
 template <typename E>
 bool SSLL<E>::contains(E element, bool (*equals_function)(const E&,const E&)) {
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return false;
 	}
 	else {
@@ -532,9 +588,10 @@ void SSLL<E>::print(std::ostream& stream) {
 	else {
 		class Node<E> *temp;
 		temp = head;
-		stream<<"[ ";
+		stream<<"["<<temp->data;
+		temp = temp->next;
 		while (temp != nullptr) {
-			stream<<temp->data<<", ";
+			stream<<","<<temp->data;
 			temp = temp->next;
 		}
 		stream<<"]"<<std::endl;
@@ -545,7 +602,7 @@ void SSLL<E>::print(std::ostream& stream) {
 template <typename E>
 E* const SSLL<E>::contents() {
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 	}
 	int size = this->length();
 	E *array = new E[size];

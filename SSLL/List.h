@@ -23,9 +23,9 @@ class List {
 	virtual E remove(size_t pos) = 0;
 	virtual E pop_back() = 0;
 	virtual E pop_front() = 0;
-	virtual E item_at(size_t pos) = 0;
-	virtual E peek_back() = 0;
-	virtual E peek_front() = 0;
+	virtual E& item_at(size_t pos) = 0;
+	virtual E& peek_back() = 0;
+	virtual E& peek_front() = 0;
 	virtual bool is_empty() = 0;
 	virtual bool is_full() = 0;
 	virtual size_t length() = 0;

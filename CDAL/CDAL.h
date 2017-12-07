@@ -320,15 +320,13 @@ void CDAL<E>::push_front(E element) {
 }
 
 //---insert()
-//TODO investing crashing
-//crashes in cpp but not in ubuntu? 
-//MAKE SURE TO CHECK THIS ON CISE SERVERS
+//TODO investigating crashing
 template <typename E>
 void CDAL<E>::insert(E element, size_t pos) {
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
-		//std::cout<<"Invalid Position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return;
 	}
 	//calculate how many nodes we have to traverse to get to pos
@@ -349,9 +347,8 @@ void CDAL<E>::insert(E element, size_t pos) {
 	if (temp_Node->tail_index == 50) {
 		//if all nodes are full when we insert, we'll need a new node
 		if (tail->tail_index == 50) {
-		temp_Node = this->new_node(element);
-		tail->next = temp_Node;
-		tail = temp_Node;
+			tail->next = this->new_node(element);
+			tail = tail->next;
 		}
 		
 		//insert at correct node
@@ -373,9 +370,11 @@ void CDAL<E>::insert(E element, size_t pos) {
 			}
 			temp_Node->array[0] = element;
 			element = temp;
+			if (temp_Node->next == nullptr) {
+				temp_Node->tail_index++;
+			}
 			temp_Node = temp_Node->next;
 		}
-		temp_Node->tail_index++;
 	}
 	else {
 		//process similar to pushing front but at certain pos 
@@ -396,13 +395,13 @@ void CDAL<E>::replace(E element, size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return;
 	}
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
-		//std::cout<<"Invalid Position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return;
 	}
 	//calculate how many nodes we have to traverse to get to pos
@@ -425,13 +424,13 @@ E CDAL<E>::remove(size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
-		//std::cout<<"Invalid Position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return 0;
 	}
 	//calculate how many nodes we have to traverse to get to pos
@@ -474,7 +473,7 @@ template <typename E>
 E CDAL<E>::pop_back() {
 	E value;
 	if (head == nullptr || head->tail_index == 0) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	value = tail->array[tail->tail_index-1];
@@ -502,7 +501,7 @@ E CDAL<E>::pop_front() {
 	temp_Node = head;
 	
 	if (head == nullptr || head->tail_index == 0) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	value = head->array[0];
@@ -537,13 +536,13 @@ E CDAL<E>::item_at(size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
-		//std::cout<<"Invalid Position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return 0;
 	}
 	//calculate how many nodes we have to traverse to get to pos
@@ -563,7 +562,7 @@ template <typename E>
 E CDAL<E>::peek_back() {
 	E value;
 	if (tail == nullptr || head->tail_index == 0) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	else {
@@ -577,7 +576,7 @@ template <typename E>
 E CDAL<E>::peek_front() {
 	E value;
 	if (head == nullptr || head->tail_index == 0) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	else {
@@ -645,7 +644,7 @@ bool CDAL<E>::contains(E element, bool (*equals_function)(const E&, const E&)) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr || temp_Node->tail_index == 0) {
-		//std::cout <<"List is empty!"<< std::endl;
+		throw std::runtime_error("List is empty!");
 		return false;
 	}
 	
@@ -683,14 +682,12 @@ void CDAL<E>::print(std::ostream& stream) {
 }
 
 //---contents()
-//TODO FIX THIS, CRASHES CURRENTLY
-//or not? check this out thoroughly 
 template <typename E>
 E* const CDAL<E>::contents() {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr || temp_Node->tail_index == 0) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 	}
 	
 	int size = this->length();

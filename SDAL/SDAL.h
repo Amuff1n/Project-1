@@ -274,7 +274,7 @@ template <typename E>
 void SDAL<E>::insert(E element, size_t pos) {
 	//check if invalid index
 	if (pos > tail-1 || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return;
 	}
 	
@@ -296,7 +296,7 @@ template <typename E>
 void SDAL<E>::replace(E element, size_t pos) {
 	//check if invalid index
 	if (pos > tail-1 || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return;
 	}
 	
@@ -309,7 +309,7 @@ template <typename E>
 E SDAL<E>::remove(size_t pos) {
 	//check if invalid index 
 	if (pos > tail-1 || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return 0;
 	}
 	
@@ -360,7 +360,7 @@ template <typename E>
 E SDAL<E>::item_at(size_t pos) {
 	//check if invalid index 
 	if (pos > tail-1 || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return 0;
 	}
 	
@@ -431,7 +431,7 @@ void SDAL<E>::clear() {
 template <typename E>
 bool SDAL<E>::contains(E element, bool (*equals_function)(const E&,const E&)) {
 	if (tail == 0) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return false;
 	}
 	for (int i = 0; i <= tail; i++) {

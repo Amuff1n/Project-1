@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "../catch.hpp"
 
-#include "CBL.h"
+#include "../CBL.h"
 
 #include <iostream>
 
@@ -206,6 +206,8 @@ SCENARIO("Testing new array allocation (sizing up)") {
 				REQUIRE(item == 3);
 			}
 		}
+		
+		delete cbl;
 	}
 }
 
@@ -233,5 +235,192 @@ SCENARIO("Testing new array allocation (sizing down)") {
 				REQUIRE(item == 2);
 			}
 		}
+		delete cbl;
 	}
 }
+
+SCENARIO("Testing 'big five' and iterators") {
+	GIVEN ("List of integers") {
+		
+		//declaring CBL here, not List
+		//TODO put virtual iterator methods (and maybe virtual 'big five') in List.h
+		CBL<int> * cbl = new CBL<int>(5);
+		
+		cbl->push_back(3);
+		cbl->push_front(1);
+		cbl->insert(0,0);
+		cbl->insert(2,2);
+		cbl->print(std::cout);
+		/*
+		//TODO not sure if these needs fixing, but current iterator iterates over entire array, not just 'list'
+		WHEN("Testing iterators") {
+			CBL<int>::iterator iter = cbl->begin();
+			CBL<int>::iterator end = cbl->end();
+			THEN("Iterator should return list") {
+				size_t array[4] = {0,1,2,3};
+				for (int i = 0; i < cbl->length(); ++iter, ++i) {
+					REQUIRE(*iter == array[i]);
+				}
+			}
+		}
+		*/
+		WHEN("Testing copy constructor") {
+			CBL<int> * cbl2(cbl);
+			THEN("List should be same for new copy") {
+				for (int i = 0; i < cbl2->length(); i++) {
+					REQUIRE(cbl2->item_at(i) == cbl->item_at(i));
+				}
+			}
+		}
+		//TODO fix assignment shit
+		/*
+		WHEN("Testing copy assignment") {
+			CBL<int> * cbl2 = new CBL<int>;
+			cbl2->push_back(24);
+			cbl2->push_front(23);
+			
+			cbl2 = cbl;
+			
+			THEN("List should be same for new copy") {
+				for (int i = 0; i < cbl2->length(); i++) {
+					REQUIRE(cbl2->item_at(i) == cbl->item_at(i));
+				}
+			}
+			
+			delete cbl2;
+		}
+		*/
+		WHEN("Testing move constructor") {
+			CBL<int> *  cbl2(std::move(cbl));
+			THEN("List should move to new copy") {
+				size_t array[4] = {0,1,2,3};
+				for (int i = 0; i < cbl2->length(); i++) {
+					REQUIRE(array[i] == cbl2->item_at(i));
+				}
+			}
+		}
+		/*
+		WHEN("Testing move assignment") {
+			CBL<int> * cbl2 = new CBL<int>;
+			cbl2->push_back(24);
+			cbl2->push_front(23);
+			
+			cbl2 = std::move(cbl);
+			THEN("List should move to new copy") {
+				size_t array[4] = {0,1,2,3};
+				for (int i = 0; i < cbl2->length(); i++) {
+					REQUIRE(array[i] == cbl2->item_at(i));
+				}
+			}
+			
+			delete cbl2;
+		}
+		*/
+		delete cbl;
+	}
+}
+
+SCENARIO("Testing large lists") {
+	GIVEN("A list of 150 ints") {
+		List<int> * cbl = new CBL<int>(5);
+		for (int i = 0; i < 150; i++) {
+			cbl->push_back(i);
+		}
+		
+		WHEN("Checking length") {
+			size_t length = cbl->length();
+			THEN("Length should be 150") {
+				REQUIRE(length == 150);
+			}
+		}
+		
+		WHEN("Popping front") {
+			int value = cbl->pop_front();
+			size_t length = cbl->length();
+			THEN("The value should be 0 and the length should be 149") {
+				REQUIRE(value == 0);
+				REQUIRE(length == 149);
+			}	
+		}
+		
+		WHEN("Popping back") {
+			int value = cbl->pop_back();
+			size_t length = cbl->length();
+			THEN("The value should be 149 and the length should be 149") {
+				REQUIRE(value == 149);
+				REQUIRE(length == 149);
+			}	
+		}
+		
+		WHEN("Removing int from pos 50") {
+			int value = cbl->remove(50);
+			size_t length = cbl->length();
+			THEN("The value should be 50 and length should be 149") {
+				REQUIRE(value == 50);
+				REQUIRE(length == 149);
+			}
+		}
+		
+		WHEN("Inserting 255 at pos 50") {
+			cbl->insert(255, 50);
+			int value = cbl->item_at(50);
+			size_t length = cbl->length();
+			THEN("The value at pos 50 should be 255 and the length should be 151") {
+				REQUIRE(value == 255);
+				REQUIRE(length == 151);
+			}
+		}
+		
+		WHEN("Clearing the list") {
+			cbl->clear();
+			bool x = cbl->is_empty();
+			size_t length = cbl->length();
+			THEN("Length should be 0 and is_empty() should be true") {
+				REQUIRE(x == true);
+				REQUIRE(length == 0);
+			}
+		}
+		
+		WHEN("Checking contains for 177") {
+			bool x = cbl->contains(177,equals_function);
+		}
+		
+		delete cbl;
+	} 
+}
+
+//TODO implement const and non const shit
+/*
+SCENARIO ("Testing constant-ness(?)") {
+	GIVEN ("A constant list") {
+		List<int> * cbl = new CBL<int>;
+		
+		cbl->push_back(3);
+		cbl->push_front(1);
+		cbl->insert(0,0);
+		cbl->insert(2,2);
+		cbl->print(std::cout);
+		
+		const List<int> * cbl2 = cbl; 
+		
+		WHEN("Checking its length") {
+			size_t size = cbl2->length();
+			THEN ("Length should be returned as 4") {
+				REQUIRE(size == 4);
+			}
+		}
+		
+		
+		WHEN("Testing iterators") {
+			CBL<int>::const_iterator iter = cbl2->begin();
+			CBL<int>::const_iterator end = cbl2->end();
+			THEN("Iterator should return list") {
+				size_t array[4] = {0,1,2,3};
+				for (int i = 0; iter!= end; ++iter, ++i) {
+					REQUIRE(*iter == array[i]);
+				}
+			}
+		}
+	}
+}
+*/

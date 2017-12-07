@@ -148,6 +148,12 @@ int main() {
 			ssll_3.print(std::cout); //print that to show it is different
 			ssll_3 = ssll_1;
 			ssll_3.print(std::cout);
+			std::cout<<"Testing move constructor"<<std::endl;
+			SSLL<char> ssll_4 = std::move(ssll_1);
+			ssll_4.print(std::cout);
+			std::cout<<"Testing move assignment"<<std::endl;
+			ssll_1 = std::move(ssll_4);
+			ssll_1.print(std::cout);
 			break;
 		}
 		case 20:
