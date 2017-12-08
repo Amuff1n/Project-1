@@ -3,7 +3,6 @@
 
 //maybe change all the ints to size_t later?
 
-//TODO Iterator breaks when new array allocated, wait maybe not?
 // do more testing dingus
 
 //TODO check if list is empty when popping, removing, peeking
@@ -32,12 +31,16 @@ class SDAL : public List<E> {
 	E remove(size_t pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(size_t pos);
-	E peek_back() override;
-	E peek_front() override;
+	E& item_at(size_t pos);
+	const E& item_at(size_t pos) const;
+	E& peek_back() override;
+	const E& peek_back() const;
+	E& peek_front() override;
+	const E& peek_front() const;
 	bool is_empty() override; 
 	bool is_full() override;
 	size_t length() override;
+	const size_t length() const;
 	void clear() override;
 	
 	void allocate_new();
@@ -357,29 +360,46 @@ E SDAL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E SDAL<E>::item_at(size_t pos) {
+E& SDAL<E>::item_at(size_t pos) {
 	//check if invalid index 
 	if (pos > tail-1 || pos < 0) {
 		throw std::invalid_argument("Invalid position");
-		return 0;
 	}
-	
-	E value = array[pos];
-	return value;
+	return array[pos];
+}
+
+//---item_at() const
+template <typename E>
+const E& SDAL<E>::item_at(size_t pos) const {
+	//check if invalid index 
+	if (pos > tail-1 || pos < 0) {
+		throw std::invalid_argument("Invalid position");
+	}
+	return array[pos];
 }
 
 //---peek_back()
 template <typename E>
-E SDAL<E>::peek_back() {
-	E value = array[tail-1];
-	return value;
+E& SDAL<E>::peek_back() {
+	return array[tail-1];
+}
+
+//---peek_back() const
+template <typename E>
+const E& SDAL<E>::peek_back() const {
+	return array[tail-1];
 }
 
 //---peek_front()
 template <typename E>
-E SDAL<E>::peek_front() {
-	E value = array[0];
-	return value;
+E& SDAL<E>::peek_front() {
+	return array[0];
+}
+
+//---peek_front() const 
+template <typename E>
+const E& SDAL<E>::peek_front() const {
+	return array[0];
 }
 
 //---is_empty()
@@ -412,6 +432,13 @@ bool SDAL<E>::is_full() {
 //---length()
 template <typename E>
 size_t SDAL<E>::length() {
+	size_t length = tail;
+	return length;
+}
+
+//---length() const
+template <typename E>
+const size_t SDAL<E>::length() const {
 	size_t length = tail;
 	return length;
 }

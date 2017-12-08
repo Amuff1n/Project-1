@@ -301,11 +301,9 @@ SCENARIO("Testing large lists") {
 	} 
 }
 
-//TODO implement const and non const shit
-/*
 SCENARIO ("Testing constant-ness(?)") {
 	GIVEN ("A constant list") {
-		List<int> * psll = new PSLL<int>;
+		PSLL<int> * psll = new PSLL<int>;
 		
 		psll->push_back(3);
 		psll->push_front(1);
@@ -313,7 +311,7 @@ SCENARIO ("Testing constant-ness(?)") {
 		psll->insert(2,2);
 		psll->print(std::cout);
 		
-		const List<int> * psll2 = psll; 
+		const PSLL<int> * psll2 = psll; 
 		
 		WHEN("Checking its length") {
 			size_t size = psll2->length();
@@ -322,6 +320,12 @@ SCENARIO ("Testing constant-ness(?)") {
 			}
 		}
 		
+		WHEN("Checking the first item") {
+			int value = psll2->peek_front();
+			THEN("The value should be 0") {
+				REQUIRE(value == 0);
+			}
+		}
 		
 		WHEN("Testing iterators") {
 			PSLL<int>::const_iterator iter = psll2->begin();
@@ -333,7 +337,9 @@ SCENARIO ("Testing constant-ness(?)") {
 				}
 			}
 		}
+		
+		delete psll;
 	}
 }
-*/
+
 

@@ -480,7 +480,7 @@ E& SSLL<E>::peek_front() {
 	}
 }
 
-//---peek_front()
+//---peek_front() const
 template <typename E>
 const E& SSLL<E>::peek_front() const {
 	E value;
@@ -525,7 +525,7 @@ size_t SSLL<E>::length() {
 	return length;
 }
 
-//---length()
+//---length() const
 template <typename E>
 const size_t SSLL<E>::length() const {
 	class Node<E> *temp;

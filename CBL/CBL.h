@@ -6,8 +6,6 @@
 
 //maybe change all the ints to size_t later?
 
-//TODO Iterator breaks when new array allocated, wait maybe not?
-
 //good luck to the poor soul who tries to understand this code later
 //(that includes me)
 
@@ -35,12 +33,16 @@ class CBL : public List<E> {
 	E remove(size_t pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(size_t pos);
-	E peek_back() override;
-	E peek_front() override;
+	E& item_at(size_t pos);
+	const E& item_at(size_t pos) const;
+	E& peek_back() override;
+	const E& peek_back() const;
+	E& peek_front() override;
+	const E& peek_front() const;
 	bool is_empty() override; 
 	bool is_full() override;
 	size_t length() override;
+	const size_t length() const;
 	void clear() override;
 	
 	void allocate_new();
@@ -509,61 +511,104 @@ E CBL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E CBL<E>::item_at(size_t pos) {
+E& CBL<E>::item_at(size_t pos) {
 	//check if invalid index 
 	size_t length = this->length();
 	
 	if (length == 0) {
-		//std::cout<<"List is empty!"<<std::endl;
-		return 0;
+		throw std::runtime_error("List is empty!");
 	}
 	
 	if (pos >= length || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
-		return 0;
+		throw std::invalid_argument("Invalid position");
 	}
 	
 	E value;
 	
 	//normal array, no wrap around
 	if (head <= tail) {
-		value = array[head + pos];
+		return array[head + pos];
 	}
 	//otherwise wrap around
 	else {
 		if (pos < array_size - head) {
-			value = array[head + pos];
+			return array[head + pos];
 		}
 		else {
 			size_t local_pos = pos - (array_size - head);
-			value = array[local_pos];
+			return array[local_pos];
 		}	
 	}
-	return value;
+}
+
+//---item_at() const
+template <typename E>
+const E& CBL<E>::item_at(size_t pos) const{
+	//check if invalid index 
+	size_t length = this->length();
+	
+	if (length == 0) {
+		throw std::runtime_error("List is empty!");
+	}
+	
+	if (pos >= length || pos < 0) {
+		throw std::invalid_argument("Invalid position");
+	}
+	
+	E value;
+	
+	//normal array, no wrap around
+	if (head <= tail) {
+		return array[head + pos];
+	}
+	//otherwise wrap around
+	else {
+		if (pos < array_size - head) {
+			return array[head + pos];
+		}
+		else {
+			size_t local_pos = pos - (array_size - head);
+			return array[local_pos];
+		}	
+	}
 }
 
 //---peek_back()
 template <typename E>
-E CBL<E>::peek_back() {
+E& CBL<E>::peek_back() {
 	if (head == tail) {
-		//std::cout<<"List is empty!"<<std::endl;
-		return 0;
+		throw std::runtime_error("List is empty!");
 	}
-	
-	E value = array[tail-1];
-	return value;
+	return array[tail-1];
+}
+
+//---peek_back() const
+template <typename E>
+const E& CBL<E>::peek_back() const {
+	if (head == tail) {
+		throw std::runtime_error("List is empty!");
+	}
+	return array[tail-1];
 }
 
 //---peek_front()
 template <typename E>
-E CBL<E>::peek_front() {
+E& CBL<E>::peek_front() {
 	if (head == tail) {
-		//std::cout<<"List is empty!"<<std::endl;
-		return 0;
+		throw std::runtime_error("List is empty!");
 	}
-	
-	E value = array[head];
-	return value;
+
+	return array[head];
+}
+
+//---peek_front() const
+template <typename E>
+const E& CBL<E>::peek_front() const {
+	if (head == tail) {
+		throw std::runtime_error("List is empty!");
+	}
+
+	return array[head];
 }
 
 //---is_empty()
@@ -596,6 +641,21 @@ bool CBL<E>::is_full() {
 //---length()
 template <typename E>
 size_t CBL<E>::length() {
+	size_t length = 0;
+	//if head before tail, like a normal array
+	if (head <= tail) {
+		length = tail - head;
+	}
+	//if head after tail, there is wrap around, i.e. it is circular
+	else {
+		length = tail + (array_size - head);
+	}
+	return length;
+}
+
+//---length() const
+template <typename E>
+const size_t CBL<E>::length() const {
 	size_t length = 0;
 	//if head before tail, like a normal array
 	if (head <= tail) {

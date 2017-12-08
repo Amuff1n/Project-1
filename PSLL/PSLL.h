@@ -37,12 +37,16 @@ class PSLL : public List<E> {
 	E remove(size_t pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(size_t pos);
-	E peek_back() override;
-	E peek_front() override;
+	E& item_at(size_t pos);
+	const E& item_at(size_t pos) const;
+	E& peek_back() override;
+	const E& peek_back() const;
+	E& peek_front() override;
+	const E& peek_front() const;
 	bool is_empty() override; 
 	bool is_full() override;
 	size_t length() override;
+	const size_t length() const;
 	size_t pool_length();
  	void clear() override;
 	
@@ -496,50 +500,81 @@ E PSLL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E PSLL<E>::item_at(size_t pos) {
+E& PSLL<E>::item_at(size_t pos) {
 	class Node<E> *temp, *prev;
 	temp = head;
 	if (head == nullptr) {
 		throw std::runtime_error("List is empty!");
-		return 0;
 	}
 	int size = this->length();
 	if (pos > size || pos < 0) {
 		throw std::invalid_argument("Invalid position");
-		return 0;
 	}
 	for (int i = 0; i < pos; i++) {
 		temp = temp->next;
 	}
-	E value = temp->data;
-	return value;
+	return temp->data;
+}
+
+//---item_at() const
+template <typename E>
+const E& PSLL<E>::item_at(size_t pos) const {
+	class Node<E> *temp, *prev;
+	temp = head;
+	if (head == nullptr) {
+		throw std::runtime_error("List is empty!");
+	}
+	int size = this->length();
+	if (pos > size || pos < 0) {
+		throw std::invalid_argument("Invalid position");
+	}
+	for (int i = 0; i < pos; i++) {
+		temp = temp->next;
+	}
+	return temp->data;
 }
 
 //---peek_back()
 template <typename E>
-E PSLL<E>::peek_back() {
-	E value;
+E& PSLL<E>::peek_back() {
 	if (tail == nullptr) {
 		throw std::runtime_error("List is empty!");
-		return 0;
 	}
 	else {
-	value = tail->data;
-	return value;
+	return tail->data;
+	}
+}
+
+//---peek_back() const
+template <typename E>
+const E& PSLL<E>::peek_back() const {
+	if (tail == nullptr) {
+		throw std::runtime_error("List is empty!");
+	}
+	else {
+	return tail->data;
 	}
 }
 
 //---peek_front()
 template <typename E>
-E PSLL<E>::peek_front() {
-	E value;
+E& PSLL<E>::peek_front() {
 	if (head == nullptr) {
 		throw std::runtime_error("List is empty!");
-		return 0;
 	}
 	else {
-	value = head->data;
-	return value;
+	return head->data;
+	}
+}
+
+//---peek_front() const
+template <typename E>
+const E& PSLL<E>::peek_front() const {
+	if (head == nullptr) {
+		throw std::runtime_error("List is empty!");
+	}
+	else {
+	return head->data;
 	}
 }
 
@@ -566,6 +601,19 @@ bool PSLL<E>::is_full() {
 //---length()
 template <typename E>
 size_t PSLL<E>::length() {
+	class Node<E> *temp;
+	temp = head;
+	size_t length = 0;
+	while (temp != nullptr) {
+		temp = temp->next;
+		length++;
+	}
+	return length;
+}
+
+//---length() const
+template <typename E>
+const size_t PSLL<E>::length() const {
 	class Node<E> *temp;
 	temp = head;
 	size_t length = 0;

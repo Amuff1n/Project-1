@@ -252,7 +252,7 @@ SCENARIO("Testing 'big five' and iterators") {
 		cbl->insert(2,2);
 		cbl->print(std::cout);
 		/*
-		//TODO not sure if these needs fixing, but current iterator iterates over entire array, not just 'list'
+		//TODO iterators will be off from array because they go over entire array instead of list currently
 		WHEN("Testing iterators") {
 			CBL<int>::iterator iter = cbl->begin();
 			CBL<int>::iterator end = cbl->end();
@@ -389,11 +389,9 @@ SCENARIO("Testing large lists") {
 	} 
 }
 
-//TODO implement const and non const shit
-/*
 SCENARIO ("Testing constant-ness(?)") {
 	GIVEN ("A constant list") {
-		List<int> * cbl = new CBL<int>;
+		CBL<int> * cbl = new CBL<int>(5);
 		
 		cbl->push_back(3);
 		cbl->push_front(1);
@@ -401,7 +399,7 @@ SCENARIO ("Testing constant-ness(?)") {
 		cbl->insert(2,2);
 		cbl->print(std::cout);
 		
-		const List<int> * cbl2 = cbl; 
+		const CBL<int> * cbl2 = cbl; 
 		
 		WHEN("Checking its length") {
 			size_t size = cbl2->length();
@@ -410,17 +408,25 @@ SCENARIO ("Testing constant-ness(?)") {
 			}
 		}
 		
-		
+		WHEN("Checking the first item") {
+			int value = cbl2->peek_front();
+			THEN("The value should be 0") {
+				REQUIRE(value == 0);
+			}
+		}
+		/*
+		//TODO iterators will be off from array because they go over entire array instead of list currently
 		WHEN("Testing iterators") {
 			CBL<int>::const_iterator iter = cbl2->begin();
 			CBL<int>::const_iterator end = cbl2->end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; iter!= end; ++iter, ++i) {
+				for (int i = 0; i < cbl2->length(); ++iter, ++i) {
 					REQUIRE(*iter == array[i]);
 				}
 			}
 		}
+		*/
+		delete cbl;
 	}
 }
-*/

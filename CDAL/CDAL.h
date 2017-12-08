@@ -45,12 +45,16 @@ class CDAL : public List<E> {
 	E remove(size_t pos);
 	E pop_back() override;
 	E pop_front() override;
-	E item_at(size_t pos);
-	E peek_back() override;
-	E peek_front() override;
+	E& item_at(size_t pos);
+	const E& item_at(size_t pos) const;
+	E& peek_back() override;
+	const E& peek_back() const;
+	E& peek_front() override;
+	const E& peek_front() const;
 	bool is_empty() override; 
 	bool is_full() override;
 	size_t length() override;
+	const size_t length() const;
 	void clear() override;
 	
 	bool contains(E element, bool (*equals_function)(const E&, const E&));	
@@ -298,7 +302,7 @@ void CDAL<E>::push_front(E element) {
 			
 			E temp = temp_Node->array[49];
 		
-			for (int i = 50;  i > 0; i--) {
+			for (int i = 49;  i > 0; i--) {
 				temp_Node->array[i] = temp_Node->array[i - 1];
 			}
 			temp_Node->array[0] = element;
@@ -310,7 +314,7 @@ void CDAL<E>::push_front(E element) {
 	else {
 		//otherwise there is space in head node
 		//just push front like a normal array
-		for (int i = 50;  i > 0; i--) {
+		for (int i = 49;  i > 0; i--) {
 			temp_Node->array[i] = temp_Node->array[i - 1];
 		}
 		temp_Node->array[0] = element;
@@ -320,7 +324,6 @@ void CDAL<E>::push_front(E element) {
 }
 
 //---insert()
-//TODO investigating crashing
 template <typename E>
 void CDAL<E>::insert(E element, size_t pos) {
 	//check if pos will be invalid
@@ -354,7 +357,7 @@ void CDAL<E>::insert(E element, size_t pos) {
 		//insert at correct node
 		E temp = temp_Node->array[49];
 		
-		for (int i = 50;  i > local_pos; i--) {
+		for (int i = 49;  i > local_pos; i--) {
 			temp_Node->array[i] = temp_Node->array[i - 1];
 		}
 		temp_Node->array[local_pos] = element;
@@ -365,7 +368,7 @@ void CDAL<E>::insert(E element, size_t pos) {
 		while (temp_Node) {
 			temp = temp_Node->array[49];
 		
-			for (int i = 50;  i > 0; i--) {
+			for (int i = 49;  i > 0; i--) {
 				temp_Node->array[i] = temp_Node->array[i - 1];
 			}
 			temp_Node->array[0] = element;
@@ -378,7 +381,7 @@ void CDAL<E>::insert(E element, size_t pos) {
 	}
 	else {
 		//process similar to pushing front but at certain pos 
-		for (int i = 50; i > local_pos; i--) {
+		for (int i = 49; i > local_pos; i--) {
 			temp_Node->array[i] = temp_Node->array[i - 1];
 		}
 		temp_Node->array[local_pos] = element;
@@ -532,18 +535,41 @@ E CDAL<E>::pop_front() {
 
 //---item_at()
 template <typename E>
-E CDAL<E>::item_at(size_t pos) {
+E& CDAL<E>::item_at(size_t pos) {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	if (head == nullptr) {
 		throw std::runtime_error("List is empty!");
-		return 0;
 	}
 	//check if pos will be invalid
 	size_t length = this->length();
 	if (pos > length-1 || pos < 0) {
 		throw std::invalid_argument("Invalid position");
-		return 0;
+	}
+	//calculate how many nodes we have to traverse to get to pos
+	int node_number = pos/50;
+	//mod for local pos 
+	int local_pos = pos % 50;
+	//navigate to correct node for indicated pos
+	for (int i = 0; i < node_number; i++) {
+		temp_Node = temp_Node->next;
+	}
+	
+	return temp_Node->array[local_pos];
+}
+
+//---item_at() const
+template <typename E>
+const E& CDAL<E>::item_at(size_t pos) const {
+	class Node<E> *temp_Node;
+	temp_Node = head;
+	if (head == nullptr) {
+		throw std::runtime_error("List is empty!");
+	}
+	//check if pos will be invalid
+	size_t length = this->length();
+	if (pos > length-1 || pos < 0) {
+		throw std::invalid_argument("Invalid position");
 	}
 	//calculate how many nodes we have to traverse to get to pos
 	int node_number = pos/50;
@@ -559,29 +585,45 @@ E CDAL<E>::item_at(size_t pos) {
 
 //---peek_back()
 template <typename E>
-E CDAL<E>::peek_back() {
-	E value;
+E& CDAL<E>::peek_back() {
 	if (tail == nullptr || head->tail_index == 0) {
 		throw std::runtime_error("List is empty!");
-		return 0;
 	}
 	else {
-	value = tail->array[tail->tail_index-1];
-	return value;
+		return tail->array[tail->tail_index-1];
+	}
+}
+
+//---peek_back() const
+template <typename E>
+const E& CDAL<E>::peek_back() const {
+	if (tail == nullptr || head->tail_index == 0) {
+		throw std::runtime_error("List is empty!");
+	}
+	else {
+		return tail->array[tail->tail_index-1];
 	}
 }
 
 //---peek_front()
 template <typename E>
-E CDAL<E>::peek_front() {
-	E value;
+E& CDAL<E>::peek_front() {
 	if (head == nullptr || head->tail_index == 0) {
 		throw std::runtime_error("List is empty!");
-		return 0;
 	}
 	else {
-	value = head->array[0];
-	return value;
+		return head->array[0];
+	}
+}
+
+//---peek_front() const
+template <typename E>
+const E& CDAL<E>::peek_front() const {
+	if (head == nullptr || head->tail_index == 0) {
+		throw std::runtime_error("List is empty!");
+	}
+	else {
+		return head->array[0];
 	}
 }
 
@@ -608,6 +650,19 @@ bool CDAL<E>::is_full() {
 //---length()
 template <typename E>
 size_t CDAL<E>::length() {
+	class Node<E> *temp_Node;
+	temp_Node = head;
+	size_t length = 0;
+	while (temp_Node != nullptr) {
+		length = length + (temp_Node->tail_index);
+		temp_Node = temp_Node->next;
+	}
+	return length;
+}
+
+//---length() const
+template <typename E>
+const size_t CDAL<E>::length() const {
 	class Node<E> *temp_Node;
 	temp_Node = head;
 	size_t length = 0;

@@ -275,11 +275,9 @@ SCENARIO("Testing large lists") {
 	} 
 }
 
-//TODO implement const and non const shit
-/*
 SCENARIO ("Testing constant-ness(?)") {
 	GIVEN ("A constant list") {
-		List<int> * cdal = new CDAL<int>;
+		CDAL<int> * cdal = new CDAL<int>;
 		
 		cdal->push_back(3);
 		cdal->push_front(1);
@@ -287,7 +285,7 @@ SCENARIO ("Testing constant-ness(?)") {
 		cdal->insert(2,2);
 		cdal->print(std::cout);
 		
-		const List<int> * cdal2 = cdal; 
+		const CDAL<int> * cdal2 = cdal; 
 		
 		WHEN("Checking its length") {
 			size_t size = cdal2->length();
@@ -296,18 +294,26 @@ SCENARIO ("Testing constant-ness(?)") {
 			}
 		}
 		
+		WHEN("Checking the first item") {
+			int value = cdal2->peek_front();
+			THEN("The value should be 0") {
+				REQUIRE(value == 0);
+			}
+		}
 		
 		WHEN("Testing iterators") {
 			CDAL<int>::const_iterator iter = cdal2->begin();
 			CDAL<int>::const_iterator end = cdal2->end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; iter!= end; ++iter, ++i) {
+				for (int i = 0; i < cdal2->length(); ++iter, ++i) {
 					REQUIRE(*iter == array[i]);
 				}
 			}
 		}
+		
+		delete cdal;
 	}
 }
-*/
+
 
