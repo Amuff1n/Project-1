@@ -148,7 +148,7 @@ class CDAL : public List<E> {
 		return i;
 	}
 	iterator end() { 
-		iterator i(tail, tail->array+50);
+		iterator i(tail, tail->array+tail->tail_index);
 		return i;
 	}
 	
@@ -157,7 +157,7 @@ class CDAL : public List<E> {
 		return i;
 	}
 	const_iterator end() const {
-		const_iterator i(tail, tail->array+50);
+		const_iterator i(tail, tail->array+tail->tail_index);
 		return i;
 	}
 };
@@ -328,7 +328,7 @@ template <typename E>
 void CDAL<E>::insert(E element, size_t pos) {
 	//check if pos will be invalid
 	size_t length = this->length();
-	if (pos > length-1 || pos < 0) {
+	if (pos > length || pos < 0) {
 		throw std::invalid_argument("Invalid position");
 		return;
 	}
@@ -726,10 +726,14 @@ void CDAL<E>::print(std::ostream& stream) {
 		stream <<"<empty list>"<< std::endl;
 	}
 	
-	stream<<"[ ";
+	stream<<"["<<temp_Node->array[0];
+	for (int i = 1; i < temp_Node->tail_index; i++) {
+			stream<<","<<temp_Node->array[i];
+	}
+	temp_Node = temp_Node->next;
 	while (temp_Node != nullptr) {
 		for (int i = 0; i < temp_Node->tail_index; i++) {
-			stream<<temp_Node->array[i]<<", ";
+			stream<<","<<temp_Node->array[i];
 		}
 		temp_Node = temp_Node->next;
 	}

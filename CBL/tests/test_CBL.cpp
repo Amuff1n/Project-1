@@ -251,19 +251,18 @@ SCENARIO("Testing 'big five' and iterators") {
 		cbl->insert(0,0);
 		cbl->insert(2,2);
 		cbl->print(std::cout);
-		/*
-		//TODO iterators will be off from array because they go over entire array instead of list currently
+		
 		WHEN("Testing iterators") {
 			CBL<int>::iterator iter = cbl->begin();
 			CBL<int>::iterator end = cbl->end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < cbl->length(); ++iter, ++i) {
+				for (int i = 0; iter != end; ++iter, ++i) {
 					REQUIRE(*iter == array[i]);
 				}
 			}
 		}
-		*/
+		
 		WHEN("Testing copy constructor") {
 			CBL<int> * cbl2(cbl);
 			THEN("List should be same for new copy") {
@@ -414,19 +413,19 @@ SCENARIO ("Testing constant-ness(?)") {
 				REQUIRE(value == 0);
 			}
 		}
-		/*
+		
 		//TODO iterators will be off from array because they go over entire array instead of list currently
 		WHEN("Testing iterators") {
 			CBL<int>::const_iterator iter = cbl2->begin();
 			CBL<int>::const_iterator end = cbl2->end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < cbl2->length(); ++iter, ++i) {
+				for (int i = 0; iter != end; ++iter, ++i) {
 					REQUIRE(*iter == array[i]);
 				}
 			}
 		}
-		*/
+
 		delete cbl;
 	}
 }

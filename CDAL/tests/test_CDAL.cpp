@@ -145,7 +145,7 @@ SCENARIO("Testing 'big five' and iterators") {
 			CDAL<int>::iterator end = cdal->end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < cdal->length(); ++iter, ++i) {
+				for (int i = 0; iter != end; ++iter, ++i) {
 					REQUIRE(*iter == array[i]);
 				}
 			}
@@ -306,7 +306,7 @@ SCENARIO ("Testing constant-ness(?)") {
 			CDAL<int>::const_iterator end = cdal2->end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < cdal2->length(); ++iter, ++i) {
+				for (int i = 0; iter != end; ++iter, ++i) {
 					REQUIRE(*iter == array[i]);
 				}
 			}

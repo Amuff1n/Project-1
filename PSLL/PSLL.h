@@ -337,10 +337,6 @@ template <typename E>
 void PSLL<E>::insert(E element, size_t pos) {
 	class Node<E> *temp,*prev, *insert_node;
 	temp = head;
-	if (head == nullptr) {
-		//std::cout<<"List is empty!"<<std::endl;
-		return;
-	}
 	int size = this->length();
 	if (pos > size || pos < 0) {
 		throw std::invalid_argument("Invalid position");
@@ -689,9 +685,10 @@ void PSLL<E>::print(std::ostream& stream) {
 	else {
 		class Node<E> *temp;
 		temp = head;
-		stream<<"[ ";
+		stream<<"["<<temp->data;
+		temp = temp->next;
 		while (temp != nullptr) {
-			stream<<temp->data<<", ";
+			stream<<","<<temp->data;
 			temp = temp->next;
 		}
 		stream<<"]"<<std::endl;

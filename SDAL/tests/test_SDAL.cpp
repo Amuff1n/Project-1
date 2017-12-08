@@ -140,13 +140,12 @@ SCENARIO("Testing 'big five' and iterators") {
 		sdal->insert(2,2);
 		sdal->print(std::cout);
 		
-		//TODO not sure if these needs fixing, but current iterator iterates over entire array, not just 'list'
 		WHEN("Testing iterators") {
 			SDAL<int>::iterator iter = sdal->begin();
 			SDAL<int>::iterator end = sdal->end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < sdal->length(); ++iter, ++i) {
+				for (int i = 0; iter != end; ++iter, ++i) {
 					REQUIRE(*iter == array[i]);
 				}
 			}
@@ -303,13 +302,13 @@ SCENARIO ("Testing constant-ness(?)") {
 				REQUIRE(value == 0);
 			}
 		}
-		//TODO not sure if these needs fixing, but current iterator iterates over entire array, not just 'list'
+
 		WHEN("Testing iterators") {
 			SDAL<int>::const_iterator iter = sdal2->begin();
 			SDAL<int>::const_iterator end = sdal2->end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < sdal2->length(); ++iter, ++i) {
+				for (int i = 0; iter != end; ++iter, ++i) {
 					REQUIRE(*iter == array[i]);
 				}
 			}

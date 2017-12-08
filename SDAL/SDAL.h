@@ -17,7 +17,7 @@ namespace cop3530 {
 template <typename E>
 class SDAL : public List<E> {
 	public:
-	SDAL(size_t size);
+	SDAL(size_t size = 50);
 	~SDAL() override;
 	SDAL(const SDAL& other); //copy constructor
 	SDAL<E>& operator= (const SDAL& other); //copy-assignment operator
@@ -139,7 +139,8 @@ class SDAL : public List<E> {
 		return i;
 	}
 	iterator end() { 
-		iterator i(array+array_size+1);
+		size_t length = this->length();
+		iterator i(array+length);
 		return i;
 	}
 	
@@ -148,7 +149,8 @@ class SDAL : public List<E> {
 		return i;
 	}
 	const_iterator end() const {
-		const_iterator i(array+array_size+1);
+		size_t length = this->length();
+		const_iterator i(array+length);
 		return i;
 	}
 };
@@ -276,8 +278,8 @@ void SDAL<E>::push_front(E element) {
 template <typename E>
 void SDAL<E>::insert(E element, size_t pos) {
 	//check if invalid index
-	if (pos > tail-1 || pos < 0) {
-		throw std::invalid_argument("Invalid position");
+	if (pos > tail || pos < 0) {
+		//throw std::invalid_argument("Invalid position");
 		return;
 	}
 	
@@ -298,6 +300,10 @@ void SDAL<E>::insert(E element, size_t pos) {
 template <typename E>
 void SDAL<E>::replace(E element, size_t pos) {
 	//check if invalid index
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+		return;
+	}
 	if (pos > tail-1 || pos < 0) {
 		throw std::invalid_argument("Invalid position");
 		return;
@@ -311,6 +317,11 @@ void SDAL<E>::replace(E element, size_t pos) {
 template <typename E>
 E SDAL<E>::remove(size_t pos) {
 	//check if invalid index 
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+		return 0;
+	}
+	
 	if (pos > tail-1 || pos < 0) {
 		throw std::invalid_argument("Invalid position");
 		return 0;
@@ -332,6 +343,11 @@ E SDAL<E>::remove(size_t pos) {
 //---pop_back()
 template <typename E>
 E SDAL<E>::pop_back() {
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+		return 0;
+	}
+	
 	if (array_size >= (init_size * 2) && tail < array_size/2) {
 		this->allocate_new();
 	}
@@ -345,6 +361,11 @@ E SDAL<E>::pop_back() {
 //---pop_front()
 template <typename E>
 E SDAL<E>::pop_front() {
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+		return 0;
+	}
+	
 	if (array_size >= (init_size * 2) && tail < array_size/2) {
 		this->allocate_new();
 	}
@@ -362,6 +383,10 @@ E SDAL<E>::pop_front() {
 template <typename E>
 E& SDAL<E>::item_at(size_t pos) {
 	//check if invalid index 
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+	}
+	
 	if (pos > tail-1 || pos < 0) {
 		throw std::invalid_argument("Invalid position");
 	}
@@ -372,6 +397,10 @@ E& SDAL<E>::item_at(size_t pos) {
 template <typename E>
 const E& SDAL<E>::item_at(size_t pos) const {
 	//check if invalid index 
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+	}
+	
 	if (pos > tail-1 || pos < 0) {
 		throw std::invalid_argument("Invalid position");
 	}
@@ -381,24 +410,36 @@ const E& SDAL<E>::item_at(size_t pos) const {
 //---peek_back()
 template <typename E>
 E& SDAL<E>::peek_back() {
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+	}
 	return array[tail-1];
 }
 
 //---peek_back() const
 template <typename E>
 const E& SDAL<E>::peek_back() const {
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+	}
 	return array[tail-1];
 }
 
 //---peek_front()
 template <typename E>
 E& SDAL<E>::peek_front() {
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+	}
 	return array[0];
 }
 
 //---peek_front() const 
 template <typename E>
 const E& SDAL<E>::peek_front() const {
+	if (tail == 0) {
+		throw std::runtime_error("List is empty!");
+	}
 	return array[0];
 }
 
@@ -479,9 +520,9 @@ void SDAL<E>::print(std::ostream& stream) {
 		stream<<"<empty list>"<<std::endl;
 		return;
 	}
-	stream<<"[ ";
-	for (int i = 0; i < tail; i++) {
-		stream<<array[i]<<", ";
+	stream<<"["<<array[0];
+	for (int i = 1; i < tail; i++) {
+		stream<<","<<array[i];
 	}
 	stream<<"]"<<std::endl;
 	//std::cout<<"array_size: "<<array_size<<std::endl;

@@ -19,7 +19,7 @@ namespace cop3530 {
 template <typename E>
 class CBL : public List<E> {
 	public:
-	CBL(size_t size);
+	CBL(size_t size = 50);
 	~CBL() override;
 	CBL(const CBL& other); //copy constructor
 	CBL<E>& operator= (const CBL& other); //copy-assignment operator
@@ -86,10 +86,13 @@ class CBL : public List<E> {
 		private:
 		//is the iterator going to have to have its own array?
 		DataT * iter_array;
+		DataT * end;
+		DataT * begin;
+		
 		
 		public:
 		//constructor
-		explicit CBL_Iter(DataT * array = nullptr) : iter_array(array) {}
+		explicit CBL_Iter(DataT * array = nullptr, DataT * end = nullptr, DataT * begin = nullptr) : iter_array(array), end(end), begin(begin) {}
 		
 		//operations
 		reference operator*() const {
@@ -100,17 +103,23 @@ class CBL : public List<E> {
 		}
 		
 		//copy and assignment
-		CBL_Iter( const CBL_Iter& src) : iter_array(src.iter_array) {}
+		CBL_Iter( const CBL_Iter& src) : iter_array(src.iter_array), end(src.end), begin(src.begin) {}
 		self_reference operator = ( CBL_Iter<DataT> const& src) {
 			if (this == &src) {
 				return (*this);
 			}
 			iter_array = src.iter_array;
+			end = src.end;
+			begin = src.begin;
 			return *this;
 		}
 		//preincrement
+		//i'm a mother-flippin genius for figuring out this iterator!
 		self_reference operator++() {
 			++iter_array;
+			if (iter_array == end) {
+				iter_array = begin;
+			}
 			return *this;
 		} 
 		//postincrement
@@ -134,24 +143,22 @@ class CBL : public List<E> {
 	using const_iterator = CBL_Iter<E const>;
 	
 	//methods to create iters
-	//iterator end currently points to 1 past array_size
-	//because of this it traverses up to declared size of array
-	//TODO get size of list before creating end iter
+	//they actualy iterate circularly! neat!
 	iterator begin() {
-		iterator i(array);
+		iterator i(array + head, array + (array_size), array);
 		return i;
 	}
 	iterator end() { 
-		iterator i(array+array_size+1);
+		iterator i(array+tail, array + (array_size), array);
 		return i;
 	}
 	
 	const_iterator begin() const {
-		const_iterator i(array);
+		const_iterator i(array + head, array + (array_size), array);
 		return i;
 	}
 	const_iterator end() const {
-		const_iterator i(array+array_size+1);
+		const_iterator i(array+tail, array + (array_size), array);
 		return i;
 	}
 };
@@ -318,7 +325,7 @@ void CBL<E>::insert(E element, size_t pos) {
 		return;
 	}
 	if (pos > length || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return;
 	}
 	
@@ -380,8 +387,12 @@ template <typename E>
 void CBL<E>::replace(E element, size_t pos) {
 	//check if invalid index
 	size_t length = this->length();
+	if (length == 0) {
+		throw std::runtime_error("List is empty!");
+		return;
+	}
 	if (pos > length || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return;
 	}
 	
@@ -408,8 +419,12 @@ template <typename E>
 E CBL<E>::remove(size_t pos) {
 	//check if invalid index 
 	size_t length = this->length();
+	if (length == 0) {
+		throw std::runtime_error("List is empty!");
+		return 0;
+	}
 	if (pos > length || pos < 0) {
-		//std::cout<<"Invalid position"<<std::endl;
+		throw std::invalid_argument("Invalid position");
 		return 0;
 	}
 	
@@ -467,7 +482,7 @@ E CBL<E>::pop_back() {
 	size_t length = this->length();
 	
 	if (length == 0) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	
@@ -491,7 +506,7 @@ E CBL<E>::pop_front() {
 	size_t length = this->length();
 	
 	if (length == 0) {
-		//std::cout<<"List is empty!"<<std::endl;
+		throw std::runtime_error("List is empty!");
 		return 0;
 	}
 	
@@ -522,9 +537,7 @@ E& CBL<E>::item_at(size_t pos) {
 	if (pos >= length || pos < 0) {
 		throw std::invalid_argument("Invalid position");
 	}
-	
-	E value;
-	
+
 	//normal array, no wrap around
 	if (head <= tail) {
 		return array[head + pos];
@@ -554,8 +567,6 @@ const E& CBL<E>::item_at(size_t pos) const{
 	if (pos >= length || pos < 0) {
 		throw std::invalid_argument("Invalid position");
 	}
-	
-	E value;
 	
 	//normal array, no wrap around
 	if (head <= tail) {
@@ -684,7 +695,7 @@ void CBL<E>::clear() {
 template <typename E>
 bool CBL<E>::contains(E element, bool (*equals_function)(const E&, const E&)) {
 	if (tail == head) {
-		//std::cout<<"List is empty!"<<std::endl; 
+		throw std::runtime_error("List is empty!");
 		return false;
 	}
 	
@@ -729,22 +740,22 @@ void CBL<E>::print(std::ostream& stream) {
 		return;
 	}
 	
-	stream<<"[ ";
+	stream<<"["<<array[head];
 	//if head before tail, like a normal array
 	if (head <= tail) {
-		for (int i = head; i < tail; i++) {
-			stream<<array[i]<<", ";
+		for (int i = head + 1; i < tail; i++) {
+			stream<<","<<array[i];
 		}
 	}
 	//if head after tail, there is wrap around, i.e. it is circular
 	else {
 		
-		for (int i = head; i < array_size; i++) {
-			stream<<array[i]<<", ";
+		for (int i = head + 1; i < array_size; i++) {
+			stream<<","<<array[i];
 		}
 			
 		for (int i = 0; i < tail; i++) {
-			stream<<array[i]<<", ";
+			stream<<","<<array[i];
 		}
 	}
 	stream<<"]"<<std::endl;
