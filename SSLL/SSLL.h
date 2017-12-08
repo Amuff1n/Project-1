@@ -18,12 +18,12 @@ class Node {
 template <typename E>
 class SSLL : public List<E> {
 	public:
-	SSLL();
+	explicit SSLL();
 	~SSLL() override; //destructor
 	SSLL(const SSLL& other); //copy constructor
-	SSLL<E>& operator= (const SSLL& other); //copy-assignment operator
+	SSLL<E>& operator = (const SSLL& other); //copy-assignment operator
 	SSLL(SSLL&& other); //move constructor
-	SSLL<E>& operator= (SSLL&& other); //move-assignment operator
+	SSLL<E>& operator = (SSLL&& other); //move-assignment operator
 	
 	
 	Node<E> * new_node(E element);
@@ -166,7 +166,7 @@ SSLL<E>::SSLL(const SSLL& other) {
 	class Node<E> *temp;
 	temp = other.head;
 
-	while (temp) {
+	while (temp != nullptr) {
 		this->push_back(temp->data);
 		temp = temp->next;
 	}
@@ -177,14 +177,14 @@ SSLL<E>::SSLL(const SSLL& other) {
 template <typename E>
 SSLL<E>& SSLL<E>::operator=(const SSLL& other) {
 	if (this == &other) {
-		return *this;
+		return (*this);
 	}
 	//clear self
 	this->clear();
 	
 	class Node<E> *temp;
 	temp = other.head;
-	while (temp) {
+	while (temp != nullptr) {
 		this->push_back(temp->data);
 		temp = temp->next;
 	}
@@ -203,7 +203,7 @@ SSLL<E>::SSLL(SSLL&& other) {
 
 //---move-assignment
 template <typename E>
-SSLL<E>& SSLL<E>::operator=(SSLL&& other) {
+SSLL<E>& SSLL<E>::operator = (SSLL&& other) {
 	//make sure we aren't referencing ourself
 	if (this == &other) {
 		return *this;
@@ -236,7 +236,7 @@ void SSLL<E>::push_back(E element) {
 	class Node<E> *temp_Node, *temp;
 	temp_Node = this->new_node(element);
 	
-	if (tail == nullptr) {
+	if (head == nullptr || tail == nullptr) {
 		head = temp_Node;
 		tail = temp_Node;
 		tail->next = nullptr;
@@ -543,6 +543,8 @@ template <typename E>
 void SSLL<E>::clear() {
 	if (head == nullptr) {
 		//throw std::runtime_error("List is empty!");
+		head = nullptr;
+		tail = nullptr;
 	}
 	else {
 		class Node<E> *temp,*prev;
@@ -552,8 +554,8 @@ void SSLL<E>::clear() {
 			temp = temp->next;
 			delete prev;
 		}
-	head = nullptr;
-	tail = nullptr;
+		head = nullptr;
+		tail = nullptr;
 	}
 }
 

@@ -127,22 +127,22 @@ SCENARIO("Simple Test of Methods") {
 	}
 }
 
-SCENARIO("Testing 'big five' and iterators") {
+SCENARIO("Testing constructors and iterators") {
 	GIVEN ("List of integers") {
 		
 		//declaring SSLL here, not List
 		//TODO put virtual iterator methods (and maybe virtual 'big five') in List.h
-		SSLL<int> * ssll = new SSLL<int>;
+		SSLL<int> ssll;
 		
-		ssll->push_back(3);
-		ssll->push_front(1);
-		ssll->insert(0,0);
-		ssll->insert(2,2);
-		ssll->print(std::cout);
+		ssll.push_back(3);
+		ssll.push_front(1);
+		ssll.insert(0,0);
+		ssll.insert(2,2);
+		ssll.print(std::cout);
 		
 		WHEN("Testing iterators") {
-			SSLL<int>::iterator iter = ssll->begin();
-			SSLL<int>::iterator end = ssll->end();
+			SSLL<int>::iterator iter = ssll.begin();
+			SSLL<int>::iterator end = ssll.end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
 				for (int i = 0; iter!= end; ++iter, ++i) {
@@ -152,70 +152,80 @@ SCENARIO("Testing 'big five' and iterators") {
 		}
 		
 		WHEN("Testing iterator by changing first value to 24") {
-			SSLL<int>::iterator iter = ssll->begin();
+			SSLL<int>::iterator iter = ssll.begin();
 			*iter = 24;
-			int value = ssll->peek_front();
+			int value = ssll.peek_front();
 			THEN("Peeking front should return 24") {
 				REQUIRE(value == 24);
 			}
 		}
 		
 		WHEN("Testing copy constructor") {
-			SSLL<int> * ssll2(ssll);
+			SSLL<int> ssll2(ssll);
 			THEN("List should be same for new copy") {
-				for (int i = 0; i < ssll2->length(); i++) {
-					REQUIRE(ssll2->item_at(i) == ssll->item_at(i));
+				for (int i = 0; i < ssll2.length(); i++) {
+					REQUIRE(ssll2.item_at(i) == ssll.item_at(i));
 				}
 			}
 		}
-		//TODO fix assignment shit
-		//I say this sincerely: FUCK this shit
-		//I've spent at least 10 hours just on copy assignment here trying to figure out why the fuck it cause a segmentation fault when it deletes the copy
-		//Copy constructor works just fine
-		/*
+
+		WHEN("Testing move constructor") {
+			SSLL<int> ssll2(std::move(ssll));
+			THEN("List should move to new copy") {
+				size_t array[4] = {0,1,2,3};
+				for (int i = 0; i < ssll2.length(); i++) {
+					REQUIRE(array[i] == ssll2.item_at(i));
+				}
+			}
+		}
+	}
+}
+
+SCENARIO("Testing assignments") {
+	GIVEN("List of integers") {
+		
 		WHEN("Testing copy assignment") {
-			SSLL<int> * ssll2 = new SSLL<int>;
-			ssll2->push_back(24);
-			ssll2->push_front(23);
-			ssll2->peek_front();
+			SSLL<int> ssll;
+			ssll.push_back(3);
+			ssll.push_front(1);
+			ssll.insert(0,0);
+			ssll.insert(2,2);
+			
+			SSLL<int> ssll2;
+			ssll2.push_back(24);
+			ssll2.push_front(23);
+			ssll2.peek_front();
+			
 			ssll2 = ssll;
 			
 			THEN("List should be same for new copy") {
-				for (int i = 0; i < ssll2->length(); i++) {
-					REQUIRE(ssll2->item_at(i) == ssll->item_at(i));
+				for (int i = 0; i < ssll2.length(); i++) {
+					REQUIRE(ssll2.item_at(i) == ssll.item_at(i));
 				}
-			}
-			
-			delete ssll2;
+			}	
 		}
-		*/
-		WHEN("Testing move constructor") {
-			SSLL<int> *  ssll2(std::move(ssll));
-			THEN("List should move to new copy") {
-				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < ssll2->length(); i++) {
-					REQUIRE(array[i] == ssll2->item_at(i));
-				}
-			}
-		}
-		/*
+		
+		
 		WHEN("Testing move assignment") {
-			SSLL<int> * ssll2 = new SSLL<int>;
-			ssll2->push_back(24);
-			ssll2->push_front(23);
+			SSLL<int> ssll;
+			ssll.push_back(3);
+			ssll.push_front(1);
+			ssll.insert(0,0);
+			ssll.insert(2,2);
+			
+			SSLL<int> ssll2;
+			ssll2.push_back(24);
+			ssll2.push_front(23);
 			
 			ssll2 = std::move(ssll);
 			THEN("List should move to new copy") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < ssll2->length(); i++) {
-					REQUIRE(array[i] == ssll2->item_at(i));
+				for (int i = 0; i < ssll2.length(); i++) {
+					REQUIRE(array[i] == ssll2.item_at(i));
 				}
 			}
-			
-			delete ssll2;
 		}
-		*/
-		delete ssll;
+		
 	}
 }
 

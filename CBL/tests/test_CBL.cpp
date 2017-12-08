@@ -244,17 +244,17 @@ SCENARIO("Testing 'big five' and iterators") {
 		
 		//declaring CBL here, not List
 		//TODO put virtual iterator methods (and maybe virtual 'big five') in List.h
-		CBL<int> * cbl = new CBL<int>(5);
+		CBL<int> cbl(5);
 		
-		cbl->push_back(3);
-		cbl->push_front(1);
-		cbl->insert(0,0);
-		cbl->insert(2,2);
-		cbl->print(std::cout);
+		cbl.push_back(3);
+		cbl.push_front(1);
+		cbl.insert(0,0);
+		cbl.insert(2,2);
+		cbl.print(std::cout);
 		
 		WHEN("Testing iterators") {
-			CBL<int>::iterator iter = cbl->begin();
-			CBL<int>::iterator end = cbl->end();
+			CBL<int>::iterator iter = cbl.begin();
+			CBL<int>::iterator end = cbl.end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
 				for (int i = 0; iter != end; ++iter, ++i) {
@@ -264,58 +264,51 @@ SCENARIO("Testing 'big five' and iterators") {
 		}
 		
 		WHEN("Testing copy constructor") {
-			CBL<int> * cbl2(cbl);
+			CBL<int> cbl2(cbl);
 			THEN("List should be same for new copy") {
-				for (int i = 0; i < cbl2->length(); i++) {
-					REQUIRE(cbl2->item_at(i) == cbl->item_at(i));
+				for (int i = 0; i < cbl2.length(); i++) {
+					REQUIRE(cbl2.item_at(i) == cbl.item_at(i));
 				}
 			}
 		}
-		//TODO fix assignment shit
-		/*
+
 		WHEN("Testing copy assignment") {
-			CBL<int> * cbl2 = new CBL<int>;
-			cbl2->push_back(24);
-			cbl2->push_front(23);
+			CBL<int> cbl2;
+			cbl2.push_back(24);
+			cbl2.push_front(23);
 			
 			cbl2 = cbl;
 			
 			THEN("List should be same for new copy") {
-				for (int i = 0; i < cbl2->length(); i++) {
-					REQUIRE(cbl2->item_at(i) == cbl->item_at(i));
+				for (int i = 0; i < cbl2.length(); i++) {
+					REQUIRE(cbl2.item_at(i) == cbl.item_at(i));
 				}
 			}
-			
-			delete cbl2;
 		}
-		*/
+		
 		WHEN("Testing move constructor") {
-			CBL<int> *  cbl2(std::move(cbl));
+			CBL<int> cbl2(std::move(cbl));
 			THEN("List should move to new copy") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < cbl2->length(); i++) {
-					REQUIRE(array[i] == cbl2->item_at(i));
+				for (int i = 0; i < cbl2.length(); i++) {
+					REQUIRE(array[i] == cbl2.item_at(i));
 				}
 			}
 		}
-		/*
+	
 		WHEN("Testing move assignment") {
-			CBL<int> * cbl2 = new CBL<int>;
-			cbl2->push_back(24);
-			cbl2->push_front(23);
+			CBL<int> cbl2;
+			cbl2.push_back(24);
+			cbl2.push_front(23);
 			
 			cbl2 = std::move(cbl);
 			THEN("List should move to new copy") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < cbl2->length(); i++) {
-					REQUIRE(array[i] == cbl2->item_at(i));
+				for (int i = 0; i < cbl2.length(); i++) {
+					REQUIRE(array[i] == cbl2.item_at(i));
 				}
 			}
-			
-			delete cbl2;
 		}
-		*/
-		delete cbl;
 	}
 }
 

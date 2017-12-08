@@ -211,11 +211,11 @@ CDAL<E>& CDAL<E>::operator=(const CDAL& other) {
 //---move constructor
 template <typename E>
 CDAL<E>::CDAL(CDAL&& other) {
-	head = other->head;
-	tail = other->tail;
+	head = other.head;
+	tail = other.tail;
 	//set other to default values to avoid being automatically destroyed
-	other->head = nullptr;
-	other->tail = nullptr;
+	other.head = nullptr;
+	other.tail = nullptr;
 }
 
 //---move-assignment
@@ -225,12 +225,12 @@ CDAL<E>& CDAL<E>::operator=(CDAL&& other) {
 	if (this != &other) {
 		//free existing data
 		this->clear();
-		head = other->head;
-		tail = other->tail;
+		head = other.head;
+		tail = other.tail;
 		
 		//set other to default values to avoid being automatically destroyed
-		other->head = nullptr;
-		other->tail = nullptr;
+		other.head = nullptr;
+		other.tail = nullptr;
 	}
 	return *this;
 }

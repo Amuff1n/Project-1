@@ -132,17 +132,17 @@ SCENARIO("Testing 'big five' and iterators") {
 		
 		//declaring SDAL here, not List
 		//TODO put virtual iterator methods (and maybe virtual 'big five') in List.h
-		SDAL<int> * sdal = new SDAL<int>(5);
+		SDAL<int> sdal(5);
 		
-		sdal->push_back(3);
-		sdal->push_front(1);
-		sdal->insert(0,0);
-		sdal->insert(2,2);
-		sdal->print(std::cout);
+		sdal.push_back(3);
+		sdal.push_front(1);
+		sdal.insert(0,0);
+		sdal.insert(2,2);
+		sdal.print(std::cout);
 		
 		WHEN("Testing iterators") {
-			SDAL<int>::iterator iter = sdal->begin();
-			SDAL<int>::iterator end = sdal->end();
+			SDAL<int>::iterator iter = sdal.begin();
+			SDAL<int>::iterator end = sdal.end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
 				for (int i = 0; iter != end; ++iter, ++i) {
@@ -152,58 +152,51 @@ SCENARIO("Testing 'big five' and iterators") {
 		}
 		
 		WHEN("Testing copy constructor") {
-			SDAL<int> * sdal2(sdal);
+			SDAL<int> sdal2(sdal);
 			THEN("List should be same for new copy") {
-				for (int i = 0; i < sdal2->length(); i++) {
-					REQUIRE(sdal2->item_at(i) == sdal->item_at(i));
+				for (int i = 0; i < sdal2.length(); i++) {
+					REQUIRE(sdal2.item_at(i) == sdal.item_at(i));
 				}
 			}
 		}
-		//TODO fix assignment shit
-		/*
+		
 		WHEN("Testing copy assignment") {
-			SDAL<int> * sdal2 = new SDAL<int>;
-			sdal2->push_back(24);
-			sdal2->push_front(23);
+			SDAL<int> sdal2;
+			sdal2.push_back(24);
+			sdal2.push_front(23);
 			
 			sdal2 = sdal;
 			
 			THEN("List should be same for new copy") {
-				for (int i = 0; i < sdal2->length(); i++) {
-					REQUIRE(sdal2->item_at(i) == sdal->item_at(i));
+				for (int i = 0; i < sdal2.length(); i++) {
+					REQUIRE(sdal2.item_at(i) == sdal.item_at(i));
 				}
 			}
-			
-			delete sdal2;
 		}
-		*/
+
 		WHEN("Testing move constructor") {
-			SDAL<int> *  sdal2(std::move(sdal));
+			SDAL<int>  sdal2(std::move(sdal));
 			THEN("List should move to new copy") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < sdal2->length(); i++) {
-					REQUIRE(array[i] == sdal2->item_at(i));
+				for (int i = 0; i < sdal2.length(); i++) {
+					REQUIRE(array[i] == sdal2.item_at(i));
 				}
 			}
 		}
-		/*
+		
 		WHEN("Testing move assignment") {
-			SDAL<int> * sdal2 = new SDAL<int>;
-			sdal2->push_back(24);
-			sdal2->push_front(23);
+			SDAL<int> sdal2;
+			sdal2.push_back(24);
+			sdal2.push_front(23);
 			
 			sdal2 = std::move(sdal);
 			THEN("List should move to new copy") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < sdal2->length(); i++) {
-					REQUIRE(array[i] == sdal2->item_at(i));
+				for (int i = 0; i < sdal2.length(); i++) {
+					REQUIRE(array[i] == sdal2.item_at(i));
 				}
 			}
-			
-			delete sdal2;
 		}
-		*/
-		delete sdal;
 	}
 }
 

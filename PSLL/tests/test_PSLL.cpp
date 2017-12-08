@@ -134,17 +134,17 @@ SCENARIO("Testing 'big five' and iterators") {
 		
 		//declaring PSLL here, not List
 		//TODO put virtual iterator methods (and maybe virtual 'big five') in List.h
-		PSLL<int> * psll = new PSLL<int>;
+		PSLL<int> psll;
 		
-		psll->push_back(3);
-		psll->push_front(1);
-		psll->insert(0,0);
-		psll->insert(2,2);
-		psll->print(std::cout);
+		psll.push_back(3);
+		psll.push_front(1);
+		psll.insert(0,0);
+		psll.insert(2,2);
+		psll.print(std::cout);
 		
 		WHEN("Testing iterators") {
-			PSLL<int>::iterator iter = psll->begin();
-			PSLL<int>::iterator end = psll->end();
+			PSLL<int>::iterator iter = psll.begin();
+			PSLL<int>::iterator end = psll.end();
 			THEN("Iterator should return list") {
 				size_t array[4] = {0,1,2,3};
 				for (int i = 0; iter!= end; ++iter, ++i) {
@@ -154,58 +154,51 @@ SCENARIO("Testing 'big five' and iterators") {
 		}
 		
 		WHEN("Testing copy constructor") {
-			PSLL<int> * psll2(psll);
+			PSLL<int> psll2(psll);
 			THEN("List should be same for new copy") {
-				for (int i = 0; i < psll2->length(); i++) {
-					REQUIRE(psll2->item_at(i) == psll->item_at(i));
+				for (int i = 0; i < psll2.length(); i++) {
+					REQUIRE(psll2.item_at(i) == psll.item_at(i));
 				}
 			}
 		}
-		//TODO fix assignment shit
-		/*
+		
 		WHEN("Testing copy assignment") {
-			PSLL<int> * psll2 = new PSLL<int>;
-			psll2->push_back(24);
-			psll2->push_front(23);
+			PSLL<int> psll2;
+			psll2.push_back(24);
+			psll2.push_front(23);
 			
 			psll2 = psll;
 			
 			THEN("List should be same for new copy") {
-				for (int i = 0; i < psll2->length(); i++) {
-					REQUIRE(psll2->item_at(i) == psll->item_at(i));
+				for (int i = 0; i < psll2.length(); i++) {
+					REQUIRE(psll2.item_at(i) == psll.item_at(i));
 				}
 			}
-			
-			delete psll2;
 		}
-		*/
+		
 		WHEN("Testing move constructor") {
-			PSLL<int> *  psll2(std::move(psll));
+			PSLL<int> psll2(std::move(psll));
 			THEN("List should move to new copy") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < psll2->length(); i++) {
-					REQUIRE(array[i] == psll2->item_at(i));
+				for (int i = 0; i < psll2.length(); i++) {
+					REQUIRE(array[i] == psll2.item_at(i));
 				}
 			}
 		}
-		/*
+	
 		WHEN("Testing move assignment") {
-			PSLL<int> * psll2 = new PSLL<int>;
-			psll2->push_back(24);
-			psll2->push_front(23);
+			PSLL<int> psll2;
+			psll2.push_back(24);
+			psll2.push_front(23);
 			
 			psll2 = std::move(psll);
 			THEN("List should move to new copy") {
 				size_t array[4] = {0,1,2,3};
-				for (int i = 0; i < psll2->length(); i++) {
-					REQUIRE(array[i] == psll2->item_at(i));
+				for (int i = 0; i < psll2.length(); i++) {
+					REQUIRE(array[i] == psll2.item_at(i));
 				}
 			}
-			
-			delete psll2;
 		}
-		*/
-		delete psll;
 	}
 }
 
