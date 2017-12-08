@@ -448,13 +448,13 @@ E CDAL<E>::remove(size_t pos) {
 	//if current node is full and next node exists, we'll have to shift values
 	if (temp_Node->tail_index == 50 && (temp_Node->next)) {
 		E value = temp_Node->array[local_pos];
-		for (int i = local_pos; i < 50; i++) {
+		for (int i = local_pos; i < 50-1; i++) {
 			temp_Node->array[i] = temp_Node->array[i + 1];
 		}
 		while (temp_Node->next) {
 			temp_Node->array[49] = temp_Node->next->array[0];
 			temp_Node = temp_Node->next;
-			for (int i = 0; i < 50; i++) {
+			for (int i = 0; i < 50-1; i++) {
 				temp_Node->array[i] = temp_Node->array[i + 1];
 			}
 		}
@@ -463,7 +463,7 @@ E CDAL<E>::remove(size_t pos) {
 	}
 	else {
 		E value = temp_Node->array[local_pos];
-		for (int i = local_pos; i < 50; i++) {
+		for (int i = local_pos; i < 50 - 1; i++) {
 			temp_Node->array[i] = temp_Node->array[i + 1];
 		}
 		temp_Node->tail_index--;
@@ -514,7 +514,7 @@ E CDAL<E>::pop_front() {
 		while (temp_Node->next) {
 			temp_Node->array[49] = temp_Node->next->array[0];
 			temp_Node = temp_Node->next;
-			for (int i = 0; i < 50; i++) {
+			for (int i = 0; i < 50-1; i++) {
 				temp_Node->array[i] = temp_Node->array[i + 1];
 			}
 		}
@@ -523,7 +523,7 @@ E CDAL<E>::pop_front() {
 	}
 	else {
 		//otherwise, head node is only node
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 50-1; i++) {
 			temp_Node->array[i] = temp_Node->array[i + 1];
 		}
 		temp_Node->tail_index--;

@@ -262,7 +262,10 @@ SCENARIO("Testing large lists") {
 		}
 		
 		WHEN("Checking contains for 177") {
-			bool x = cdal->contains(177,equals_function);
+			bool x = cdal->contains(77,equals_function);
+			THEN("It should exist") {
+				REQUIRE(x == true);
+			}
 		}
 		delete cdal;
 	} 

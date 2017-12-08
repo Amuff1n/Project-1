@@ -264,7 +264,10 @@ SCENARIO("Testing large lists") {
 		}
 		
 		WHEN("Checking contains for 177") {
-			bool x = psll->contains(177,equals_function);
+			bool x = psll->contains(77,equals_function);
+			THEN("It should exist") {
+				REQUIRE(x == true);
+			}
 		}
 		
 		WHEN("Popping back 50 times") {

@@ -236,7 +236,7 @@ CBL<E>::CBL(CBL&& other) {
 		head = other.head;
 	
 		//set others values to default
-		delete[] other.array;
+		other.array = nullptr;
 		other.array_size = 0;
 		other.tail = 0;
 		other.head = 0;
@@ -248,7 +248,7 @@ CBL<E>& CBL<E>::operator=(CBL&& other) {
 	//make sure we aren't referencing ourself
 	if (this != &other) {
 		//free and default ourself;
-		delete array;
+		delete[] array;
 		array_size = 0;
 		tail = 0;
 		head = 0;
@@ -259,7 +259,7 @@ CBL<E>& CBL<E>::operator=(CBL&& other) {
 		head = other.head;
 	
 		//set others values to default
-		delete[] other.array;
+		other.array = nullptr;
 		other.array_size = 0;
 		other.tail = 0;
 		other.head = 0;
@@ -339,7 +339,7 @@ void CBL<E>::insert(E element, size_t pos) {
 		//save last element if we need to wrap around
 		E temp = array[tail-1];
 		//shift everything up 1
-		for (i = tail; i > pos + head; i--) {
+		for (i = tail-1; i > pos + head; i--) {
 			array[i] = array[i - 1];
 		}
 		tail++;
@@ -357,7 +357,7 @@ void CBL<E>::insert(E element, size_t pos) {
 		E temp = array[array_size - 1];
 		//if pos is on head side of circular array, we'll need wrap around when we shift up
 		if (pos < array_size - head) {
-			for (i = array_size; i > pos + head; i--) {
+			for (i = array_size-1; i > pos + head; i--) {
 				array[i] = array[i - 1];
 			}
 			array[i] = element;
@@ -451,7 +451,7 @@ E CBL<E>::remove(size_t pos) {
 		//if pos is on head side of circular array, we'll need wrap around when we shift up
 		if (pos < array_size - head) {
 			value = array[head + pos];
-			for (i = head; i < array_size; i++) {
+			for (i = head; i < array_size - 1; i++) {
 				array[i] = array[i + 1];
 			}
 			

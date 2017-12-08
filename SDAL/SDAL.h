@@ -218,7 +218,7 @@ SDAL<E>::SDAL(SDAL&& other) {
 		tail = other.tail;
 	
 		//set others values to default
-		delete[] other.array;
+		other.array = nullptr;
 		other.array_size = 0;
 		other.tail = 0;
 }
@@ -229,7 +229,7 @@ SDAL<E>& SDAL<E>::operator=(SDAL&& other) {
 	//make sure we aren't referencing ourself
 	if (this != &other) {
 		//free and default ourself;
-		delete array;
+		delete[] array;
 		array_size = 0;
 		tail = 0;
 		
@@ -238,7 +238,7 @@ SDAL<E>& SDAL<E>::operator=(SDAL&& other) {
 		tail = other.tail;
 	
 		//set others values to default
-		delete[] other.array;
+		other.array = nullptr;
 		other.array_size = 0;
 		other.tail = 0;
 	}
@@ -502,7 +502,7 @@ bool SDAL<E>::contains(E element, bool (*equals_function)(const E&,const E&)) {
 		throw std::runtime_error("List is empty!");
 		return false;
 	}
-	for (int i = 0; i <= tail; i++) {
+	for (int i = 0; i < tail; i++) {
 		if (equals_function(element,array[i])) {
 			//std::cout<<element<<" exists in list!"<<std::endl;
 			return true;
