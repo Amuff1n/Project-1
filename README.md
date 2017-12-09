@@ -4,3 +4,5 @@ This is Project 1 for the class COP3530. It contains 5 implementations of Linked
 There is a Simply-Linked List (SSLL), a Pool Simply-Linked List (PSLL), a Simple Dynamic Array-based List (SDAL), a Chained Dynamic Array-based List (CDAL), and a Circular Buffer List (CBL).
 
 https://www.cise.ufl.edu/~dts/cop3530/proj1/
+
+Currently the file structure is all out of wack. I'll fix it later.
