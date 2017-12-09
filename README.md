@@ -5,4 +5,4 @@ There is a Simply-Linked List (SSLL), a Pool Simply-Linked List (PSLL), a Simple
 
 https://www.cise.ufl.edu/~dts/cop3530/proj1/
 
-Currently the file structure is all out of wack. I'll fix it later.
+Currently the file structure is all out of wack because of me changing the folders to lowercase. I'll fix it later.
